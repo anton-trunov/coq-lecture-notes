@@ -183,7 +183,7 @@ Definition applyn' :=
 
 Axiom fun_ext :
   forall (A B : Type) (f g : A -> B),
-    forall x, f x = g x -> f = g.
+    (forall x, f x = g x) -> f = g.
 
 (** A way of defining [applyn] using Coq's section mechanism *)
 Section Applyn.
