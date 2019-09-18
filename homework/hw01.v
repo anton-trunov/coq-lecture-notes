@@ -38,6 +38,22 @@ Definition orb_table (b c : bool) : bool :=
 
 (** 3a. Implement division on unary natural numbers *)
 
+Fixpoint divn_my (n m : nat) : nat. Abort.
+
+(* Unit tests: *)
+Compute divn_my 0 0.  (* = 0 *)
+Compute divn_my 1 0.  (* = 0 *)
+Compute divn_my 0 3.  (* = 0 *)
+Compute divn_my 1 3.  (* = 0 *)
+Compute divn_my 2 3.  (* = 0 *)
+Compute divn_my 3 3.  (* = 1 *)
+Compute divn_my 8 3.  (* = 2 *)
+Compute divn_my 42 1. (* = 42 *)
+Compute divn_my 42 2. (* = 21 *)
+Compute divn_my 42 3. (* = 14 *)
+Compute divn_my 42 4. (* = 10 *)
+
+
 (** 3b. Provide several unit tests using [Compute] vernacular command *)
 
 
