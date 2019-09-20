@@ -52,7 +52,7 @@ Compute andb false c.
 
 
 
-(** Peano numbers -- tthe first truly inductive type *)
+(** Peano numbers -- the first truly inductive type *)
 Inductive nat : Type :=
 | S of nat
 | O.
@@ -89,7 +89,7 @@ Compute inc2 (S (S O)).
 Definition pred (n : nat) : nat :=
   match n with
   | S n' => n'
-  | O => O   (* truncation! Coq's funcation are total *)
+  | O => O   (* truncation! Coq's functions are total *)
   end.
 
 (**
@@ -101,7 +101,7 @@ Some options to go about implementing [pred] function:
 
 *)
 
-(** Addititon of natural numbers *)
+(** Addition of natural numbers *)
 
 (** [{struct n}] means structural recursion on parameter [n].
     Coq can infer the [struct] annotation in this case. *)
@@ -156,7 +156,7 @@ Check My.apply2.
 
 From mathcomp Require Import ssrfun ssrbool ssrnat.
 
-(** Some interacive queries *)
+(** Some interactive queries *)
 About nat.
 About S.
 
@@ -211,7 +211,7 @@ Print False.
 
 (** Let's illustrate why "in the empty context" is important *)
 Check (fun f : False => f (* here we construct a value of type
-                             [False], but the context in not empty,
+                             [False], but the context is not empty,
                              since the function parameter becomes
                              part of context here *)
       ).
@@ -236,4 +236,3 @@ Fail Check (loop O : False).
 (** And this would preclude Coq from being a logic *)
 
 (** To be continued... *)
-
