@@ -87,7 +87,7 @@
 #+ATTR_REVEAL: :frag roll-in
 - E.g. to expand the definition of the number =1= fully in terms of Bourbaki primitives requires over 4 trillion symbols
 #+ATTR_REVEAL: :frag roll-in
-- With formal proofs one wants us much help as one can get
+- With formal proofs one wants as much help as one can get
 * Formal methods techniques
 The land of formal methods includes
 #+ATTR_REVEAL: :frag roll-in
