@@ -100,7 +100,7 @@ The land of formal methods includes
 - Program Logics
 #+ATTR_REVEAL: :frag roll-in
 - ...
-- Want to learn more? Join [[https://t.me/joinchat/Bf3AJw969zOLpLQEVAmMjQ][Formal Verification chat]]
+- Want to learn more? Join [[https://t.me/practical_fm][Formal Verification chat]]
 * What is Coq?
 Coq is a formal proof management system.
 It provides
