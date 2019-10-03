@@ -14,6 +14,7 @@ Admitted.
 Lemma dne_False : ~ ~ False -> False.
 Proof.
 Admitted.
+(* dne_False = @^~ id *)
 
 Lemma dne_True : ~ ~ True -> True.
 Proof.
@@ -30,7 +31,7 @@ Admitted.
 End IntLogic.
 
 
-(** Let's get familiarize ourselves with some lemmas from [ssrbool] module.
+(** Let's familiarize ourselves with some lemmas from [ssrbool] module.
     The proofs are very easy, so the lemma statements are more important here.
  *)
 Section BooleanLogic.
