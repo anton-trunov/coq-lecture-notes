@@ -59,7 +59,7 @@ Section Illustrate_simpl_nomatch.
 Variable n : nat.
 
 Lemma default_behavior :
-  fib n.+2 = 0.
+  fib n.+1 = 0.
 Proof.
 move=> /=.  (* fib n.+1 should not get simplified *)
 Abort.
@@ -116,8 +116,8 @@ Qed.
 Lemma fib_iter_correct n :
   fib_iter n 0 1 = fib n.
 Proof.
-elim/nat_ind2: n=> // n IHn0 IHn1.
-by rewrite fib_iter_sum /= -IHn0 -IHn1 addnC.
+elim/nat_ind2: n=> // n IHn1 IHn2.
+by rewrite fib_iter_sum IHn1 IHn2.
 Qed.
 (** Note: fib_iter_correct can be proven using
     suffices:
@@ -128,9 +128,28 @@ Qed.
 
 (** * Another way is to provide a spec for fib_iter *)
 
+From Coq Require Import Omega.  (* to use [omega] tactic *)
+From Coq Require Import Psatz.  (* to use [lia] tactic *)
+
+(**
+- [omega] is a solver for Presburger arithmetic:
+  https://en.wikipedia.org/wiki/Presburger_arithmetic
+
+- [lia] is a solver for Linear Integer Arithmetic
+*)
+
 Lemma fib_iter_spec n f0 f1 :
   fib_iter n.+1 f0 f1 = f0 * fib n + f1 * fib n.+1.
 Proof.
+elim: n f0 f1=> [|n IHn] f0 f1; first by rewrite muln0 muln1.
+rewrite fib_iterS IHn /=.
+(** Using a bit of automation to finish off the proof *)
+Fail rewrite -!plusE -!multE; omega.
+by rewrite -!plusE -!multE; lia.
+
+Restart.
+
+(** Manual solution *)
 elim: n f0 f1=> [|n IHn] f0 f1; first by rewrite muln0 muln1.
 by rewrite fib_iterS IHn /= mulnDr mulnDl addnCA.
 Qed.
@@ -138,7 +157,7 @@ Qed.
 Lemma fib_iter_correct' n :
   fib_iter n 0 1 = fib n.
 Proof.
-by case: n=> // n; rewrite fib_iter_spec mul0n mul1n.
+by case: n=> // n; rewrite fib_iter_spec mul1n.
 Qed.
 
 
@@ -157,6 +176,9 @@ Lemma fib_iter_correct'' n :
   fib_iter n 0 1 = fib n.
 Proof.
 Fail apply: fib_iter_spec'.
+by apply: (fib_iter_spec' n 0).
+(* Alternative (longer, but more explicit)solution: *)
+Restart.
 suffices: (fib_iter n (fib 0) (fib 1) = fib n) by [].
 by apply: fib_iter_spec'.
 Qed.
@@ -170,7 +192,6 @@ Qed.
     - well-founded induction;
     - course-of-values induction
  *)
-
 
 Lemma lt_wf_ind (P : nat -> Prop) :
   (forall m, (forall k : nat, (k < m) -> P k) -> P m) ->
@@ -189,7 +210,20 @@ Admitted.
 Lemma fib_iter_correct''' n :
   fib_iter n 0 1 = fib n.
 Proof.
-elim: n {-2}n (leqnn n)=> [[]//|n IHn].
+move: (leqnn n).
+move: {-2}n.
+move: n.
+elim.
+case.
+done.
+by case.
+move=> n IHn.
+(* ^ the proof steps above correspond to one line below
+   marked <- *)
+
+Restart.
+
+elim: n {-2}n (leqnn n)=> [[]//|n IHn].  (* <- *)
 case=> //; case=> // n0.
 rewrite fib_iter_sum.
 move=> /dup[/ltnW/IHn-> ].
@@ -235,13 +269,14 @@ Lemma catA xs ys zs :
   xs ++ (ys ++ zs) = (xs ++ ys) ++ zs.
 Proof.
 
+
 Check list_ind :
   forall (A : Type) (P : seq A -> Prop),
     P [::] ->
     (forall (a : A) (l : seq A), P l -> P (a :: l)) ->
     forall l : seq A, P l.
 
-by elim: xs=> //= x xs' ->.
+by elim: xs => //= x xs' ->.
 Qed.
 
 End StructuralInduction.
