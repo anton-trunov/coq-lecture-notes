@@ -29,8 +29,7 @@ Implicit Types x y : A * B.
 
 Lemma prod_inj x y :
   x = y <-> (x.1, x.2) = (y.1, y.2).
-Proof.
-Admitted.
+Proof. by case: x; case: y. Qed.
 
 End Misc.
 
