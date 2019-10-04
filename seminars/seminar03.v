@@ -12,13 +12,15 @@ Lemma frobenius A (P : A -> Prop) Q :
 Admitted.
 
 Lemma exist_conj_commute A (P Q : A -> Prop) :
-  (exists x, P x /\ Q x) -> (exists x, P x) /\ (exists x, Q x).
+  (exists x, P x /\ Q x) ->
+  (exists x, P x) /\ (exists x, Q x).
 Proof.
 Admitted.
 
 Lemma conj_exist_does_not_commute :
   ~ (forall A (P Q : A -> Prop),
-       (exists x, P x) /\ (exists x, Q x) -> (exists x, P x /\ Q x)).
+        (exists x, P x) /\ (exists x, Q x) ->
+        (exists x, P x /\ Q x)).
 Proof.
 Admitted.
 
@@ -75,9 +77,30 @@ Lemma addnBC' : commutative (fun m n => m - n + n).
 Proof.
 Admitted.
 
+
+Lemma example_for_rewrite_patterns m n :
+  m * n + m * n + m * n + n * m
+  =
+  m * n + m * n + m * n + n * m.
+Proof.
+(*
+  Parenthesized goal:
+         X
+  /--------------\
+  ((m * n + m * n) + m * n) + n * m
+  =
+  ((m * n + m * n) + m * n) + n * m
+    \___________/
+         X
+*)
+rewrite [in X in X + _ + _]mulnC.
+done.
+Abort.
+
 Lemma subn_sqr m n : m ^ 2 - n ^ 2 = (m - n) * (m + n).
 Proof.
-Admitted.
+by rewrite mulnBl !mulnDr addnC mulnC subnDl.
+Qed.
 
 Lemma leq_sub_add n m p : n - m <= n + p.
 Proof.
