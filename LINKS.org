@@ -1,0 +1,21 @@
+* Useful links
+** [[https://edu.tinkoff.ru/course/19/program][Course page at edu.tinkoff.ru (in Russian)]] 
+** [[https://www.youtube.com/playlist?list=PLQ-XJe6nVU5BwX1gV80aDhwW0Jt3tipIY][Video lectures (in Russian)]]
+** How to install Coq and Mathcomp
+- https://github.com/coq/coq/wiki#coq-installation
+- https://github.com/math-comp/math-comp/blob/master/INSTALL.md
+** IDE-like editors
+- [[https://github.com/coq-community/vscoq][VsCoq (Visual Studio Code based)]]
+- CoqIDE (see Coq's installation instructions)
+- [[https://github.com/ProofGeneral/PG][Proof General (Emacs based)]]
+** Documentation
+- [[https://coq.inria.fr/distrib/current/refman/][The Coq Reference Manual]]
+** SSReflect/Mathcomp-related
+- [[https://github.com/math-comp/math-comp/wiki/tutorials][Books, lecture notes, cheatsheets, tutorials, reference manual, videos of talks]]
+- [[https://github.com/math-comp/math-comp/blob/master/CONTRIBUTING.md][Code Style Guide]]
+- [[https://github.com/math-comp/math-comp/wiki/Search][Search: tips, tricks, and gotchas]]
+- Advanced use of =rewrite= tactic: [[https://hal.inria.fr/hal-00652286v1/document][A Language of Patterns for Subterm Selection]] - G. Gonthier, E. Tassi
+** Background reading
+- [[http://www.cs.cmu.edu/~fp/courses/15317-f08/][Constructive Logic (lecture notes) by F. Pfenning(2008)]]
+- [[https://www.cs.cmu.edu/~cmartens/if/dem.html][The Devil of the Excluded Middle]]
+ 
