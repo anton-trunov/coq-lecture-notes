@@ -17,12 +17,15 @@ Lemma exist_conj_commute A (P Q : A -> Prop) :
 Proof.
 Admitted.
 
+(* Elegant solution by Vasiliy Yorkin *)
 Lemma conj_exist_does_not_commute :
   ~ (forall A (P Q : A -> Prop),
         (exists x, P x) /\ (exists x, Q x) ->
         (exists x, P x /\ Q x)).
 Proof.
-Admitted.
+move/(_ bool id not); case=> [|x [] //].
+by split; [exists true | exists false].
+Qed.
 
 (* helper lemma *)
 Lemma curry_dep A (P : A -> Prop) Q :
@@ -39,7 +42,11 @@ Definition DNE := forall (P : Prop), ~ ~ P -> P.
 Lemma not_for_all_is_exists_iff_dne :
   not_forall_exists <-> DNE.
 Proof.
-Admitted.
+rewrite /not_forall_exists /DNE; split=> [nfe | dne].
+- move=> P nnP. move: (nfe True (fun _ => P)).
+  by case/(_ (fun t_notP => nnP (t_notP I))).
+by move=> A P nAll; apply: dne=> /curry_dep/nAll.
+Qed.
 
 End IntLogic.
 
