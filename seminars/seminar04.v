@@ -27,7 +27,9 @@ Qed.
 
 
 (** Write a tail-recursive variation of the [addn] function
-    (let's call it [addn_iter]). *)
+    (let's call it [addn_iter]).
+    See https://en.wikipedia.org/wiki/Tail_call
+ *)
 Fixpoint add_iter (n m : nat) {struct n}: nat. Admitted.
 
 Lemma add_iter_correct m n :
