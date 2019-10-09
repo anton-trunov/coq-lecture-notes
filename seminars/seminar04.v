@@ -59,7 +59,7 @@ Lemma fib_add_succ m n :
   fib (m + n).+1 = fib m.+1 * fib n.+1 + fib m * fib n.
 Proof.
 elim: m n=> [|m IHm] n; first by rewrite mul1n addn0.
-rewrite addSnnS IHm => /=.
+rewrite addSnnS IHm /=.
 by rewrite mulnDl mulnDr addnAC -addnA addnC.
 Qed.
 
