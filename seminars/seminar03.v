@@ -74,7 +74,18 @@ Section Arithmetics.
 
 Lemma addnCB m n : m + (n - m) = m - n + n.
 Proof.
-Admitted.
+(* a step-wise solution *)
+Search _ (?m + (?n - ?m)).
+rewrite -maxnE.
+rewrite maxnC.  (* we already know the "C" suffix stands for "commutative" *)
+rewrite maxnE.
+rewrite addnC.
+done.
+
+Restart.
+(* idiomatic solution *)
+by rewrite -maxnE maxnC maxnE addnC.
+Qed.
 
 Lemma addnBC m n : n - m + m = m - n + n.
 Proof.
