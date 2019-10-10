@@ -188,4 +188,23 @@ into the following equality [f1 b = f2 b] *)
    it might be empty meaning we would never come up with a proof for the admitted goal. *)
 Abort.
 
+
+(** Yet another explanation of the above unprovability fact
+    It is known that Coq's theory is compatible with the axiom of functional extensionality.
+    This means that is we assume that axiom, then proving [const_eq] must not
+    lead to a contradition.
+    Let's show this is not the case here.
+ *)
+
+Axiom fext : forall A (B : A -> Type) (f1 f2 : forall x, B x),
+               (forall x, f1 x = f2 x) -> f1 = f2.
+
+Lemma not_const_eq : ~ (forall A B (x y : A),
+  @const A B x = const y -> x = y).
+Proof.
+move=> /(_ bool Empty_set false true) H.
+apply/notF/H.
+by apply: fext.
+Qed.
+
 End Misc.
