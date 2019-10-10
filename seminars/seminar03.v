@@ -121,8 +121,7 @@ by rewrite mulnBl !mulnDr addnC mulnC subnDl.
 Qed.
 
 Lemma leq_sub_add n m p : n - m <= n + p.
-Proof.
-Admitted.
+Proof. by rewrite leq_subLR addnCA leq_addr. Qed.
 
 (* prove by induction *)
 Lemma odd_exp m n : odd (m ^ n) = (n == 0) || odd m.
