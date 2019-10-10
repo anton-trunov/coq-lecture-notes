@@ -9,13 +9,27 @@ Section IntLogic.
 (* Frobenius rule: existential quantifiers and conjunctions commute *)
 Lemma frobenius A (P : A -> Prop) Q :
   (exists x, Q /\ P x) <-> Q /\ (exists x, P x).
-Admitted.
+Proof.
+split.
+- case. move=> x. case. move=> q px. split.
+  + exact: q.
+  exists x. exact: px.
+case. move=> q. case. move=> x px. exists x. split.
+- exact: q.
+exact: px.
+
+Restart.
+
+(* idiomatic solution *)
+split.
+- by case=> x [q px]; split=> //; exists x.
+by case=> [q [x px]]; exists x.
+Qed.
 
 Lemma exist_conj_commute A (P Q : A -> Prop) :
   (exists x, P x /\ Q x) ->
   (exists x, P x) /\ (exists x, Q x).
-Proof.
-Admitted.
+Proof. by case=> [x [px qx]]; split; exists x. Qed.
 
 (* Elegant solution by Vasiliy Yorkin *)
 Lemma conj_exist_does_not_commute :
@@ -65,7 +79,8 @@ Fixpoint mostowski_equiv (a : bool) (n : nat) :=
 Lemma mostowski_equiv_even_odd a n :
   mostowski_equiv a n = a || odd n.
 Proof.
-Admitted.
+by elim: n=> [|n /= ->]; case: a=> //; rewrite eqbF_neg.
+Qed.
 
 End BooleanLogic.
 
@@ -88,12 +103,10 @@ by rewrite -maxnE maxnC maxnE addnC.
 Qed.
 
 Lemma addnBC m n : n - m + m = m - n + n.
-Proof.
-Admitted.
+Proof. by rewrite addnC addnCB. Qed.
 
 Lemma addnBC' : commutative (fun m n => m - n + n).
-Proof.
-Admitted.
+Proof. by move=> m n; apply: addnBC. Qed.
 
 
 Lemma example_for_rewrite_patterns m n :
@@ -126,19 +139,53 @@ Proof. by rewrite leq_subLR addnCA leq_addr. Qed.
 (* prove by induction *)
 Lemma odd_exp m n : odd (m ^ n) = (n == 0) || odd m.
 Proof.
-Admitted.
+elim: n=> //= n IHn.
+Search _ (_ ^ _.+1 = _ * _) in ssrnat.
+rewrite expnS.
+Search _ (odd (_ * _)).
+rewrite odd_mul.
+rewrite IHn.
+Search _ (?b && (_ || ?b)).
+rewrite orKb.
+done.
+
+Restart.
+
+(* idiomatic solution: *)
+by elim: n=> //= n IHn; rewrite expnS odd_mul IHn orKb.
+Qed.
 
 End Arithmetics.
 
 
 
 Section Misc.
-(** Exlpain why the folloing statement is unprovable *)
+(** Exlpain why the following statement is unprovable *)
 
 Definition const {A B} : A -> B -> A := fun a _ => a.
+(* [/] means "allow simplification after all the arguments before the slash symbol are supplied" *)
+Arguments const {A B} a b /.
 
 Lemma const_eq A B (x y : A) :
   @const A B x = const y -> x = y.
+Proof.
+(** Explanation:
+    If we had an inhabitant of type [B], i.e. some [b : B],
+    we could apply [const x] and [const y] to [b], getting
+    [x = y] after redusing the beta-redexes as follows: *)
+
+have b: B by admit. (* assume we can construct [b] of type [B] *)
+
+by move=> /(congr1 (@^~ b)).
+(** [@^~ b] stands for (fun f => f b), i.e. application at [f].
+
+    move/(congr1 (@^~ b))
+
+turns an equality between two functions [f1] and [f2], i.e. [f1 = f2],
+into the following equality [f1 b = f2 b] *)
+
+(** Now, the problem here is that [B] is an arbitrary type, so
+   it might be empty meaning we would never come up with a proof for the admitted goal. *)
 Abort.
 
 End Misc.
