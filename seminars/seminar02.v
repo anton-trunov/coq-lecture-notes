@@ -216,26 +216,35 @@ Variables A B C D : Type.
 
 Lemma compA (f : A -> B) (g : B -> C) (h : C -> D) :
   h \o g \o f = h \o (g \o f).
-Set Printing All.
-Admitted.
+Proof. by []. Qed.
 
 Lemma eq_compl (f g : A -> B) (h : B -> C) :
   f =1 g -> h \o f =1 h \o g.
-Admitted.
+Proof. by move=> eq_fg; apply: eq_comp. Qed.
 
 Lemma eq_compr (f g : B -> C) (h : A -> B) :
   f =1 g -> f \o h =1 g \o h.
-Admitted.
+Proof. by move=> eq_fg; apply: eq_comp. Qed.
 
 Lemma eq_idl (g1 g2 : A -> B) (f : B -> B) :
   f =1 id -> f \o g1 =1 f \o g2 -> g1 =1 g2.
 Proof.
-Admitted.
+move=> f_id g12f a.
+move: (g12f a). move=> /=.
+rewrite f_id. rewrite f_id.
+done.
+
+Restart.
+
+(* idiomatic solution *)
+by move=> f_id g12f a; move: (g12f a)=> /=; rewrite !f_id.
+Qed.
 
 Lemma eq_idr (f1 f2 : A -> B) (g : A -> A) :
   g =1 id -> f1 \o g =1 f2 \o g -> f1 =1 f2.
 Proof.
-Admitted.
+by move=> g_id f12g a; move: (f12g a)=> /=; rewrite g_id.
+Qed.
 
 End eq_comp.
 
