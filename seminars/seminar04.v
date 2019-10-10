@@ -30,12 +30,37 @@ Qed.
     (let's call it [addn_iter]).
     See https://en.wikipedia.org/wiki/Tail_call
  *)
-Fixpoint add_iter (n m : nat) {struct n}: nat. Admitted.
+Fixpoint add_iter (n m : nat) {struct n}: nat :=
+  if n is n'.+1 then add_iter n' m.+1
+  else m.
 
-Lemma add_iter_correct m n :
-  add_iter m n = m + n.
-Admitted.
+Lemma add_iter_correct n m :
+  add_iter n m = n + m.
+Proof.
+elim: n=> //= n IHn.
+(* Cannot apply IHn here because it expects the second argument to be [m], and not [m.+1]
+   Anyways, lets try and massage the goal to rewrite with [IHn] from right to left.
+ *)
+rewrite addSn.
+rewrite -IHn.
+Fail done.  (* Convince yourself that we are stuck *)
 
+Restart.
+(* To proceeded we needed the induction hypothesis to be general in its second argument.
+   To do that we need to generalize our goal before applying induction.
+ *)
+move: m.
+elim: n.
+- move=> m. move=> /=. done.
+move=> n IHn m.
+move=> /=.
+rewrite IHn. rewrite addnS. done.  (* and now we are properly done *)
+
+Restart.
+
+(* Idiomatic solution: *)
+by elim: n m=> //= n IHn m; rewrite IHn addnS.
+Qed.
 
 Fixpoint fib (n : nat) : nat :=
   if n is (n''.+1 as n').+1 then fib n'' + fib n'
