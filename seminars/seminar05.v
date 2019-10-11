@@ -1,4 +1,4 @@
-From mathcomp Require Import ssreflect ssrfun ssrbool ssrnat div seq.
+From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat div seq.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
