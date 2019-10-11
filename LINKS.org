@@ -18,4 +18,6 @@
 ** Background reading
 - [[http://www.cs.cmu.edu/~fp/courses/15317-f08/][Constructive Logic (lecture notes) by F. Pfenning(2008)]]
 - [[https://www.cs.cmu.edu/~cmartens/if/dem.html][The Devil of the Excluded Middle]]
- 
+** Exercises
+- [[https://coq-math-problems.github.io][Coq Math Problems: Interesting, challenging, or fun math problems formalized in Coq]]
+- [[https://homes.cs.washington.edu/~jrw12/InductionExercises.html][Exercises on Generalizing the Induction Hypothesis by J.R. Wilcox]]
