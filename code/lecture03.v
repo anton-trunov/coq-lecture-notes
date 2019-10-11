@@ -121,6 +121,13 @@ split.
   by [].
 case; first by move=> q x; left.
 by move=> all_px x; right.
+
+Restart.
+
+move=> Lem A P Q.
+case: (Lem Q)=> [q | not_q]; first by split=> _; left.
+split=> [H | [//|x px]]; last by right.
+by right=> x; case: (H x).
 Qed.
 
 Lemma Frobenius2_lem : Frobenius2 -> LEM.
