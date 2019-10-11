@@ -62,7 +62,10 @@ Claim: every amount of postage that is at least 12 cents can be made
 (** Hint: no need to use induction here *)
 Lemma stamps n : 12 <= n -> exists s4 s5, s4 * 4 + s5 * 5 = n.
 Proof.
-Admitted.
+move=> /leq_div2r leq12n; exists (n %/4 - n %% 4), (n %% 4).
+rewrite mulnBl -addnABC -?mulnBr ?muln1 ?leq_mul -?divn_eq //.
+by rewrite (leq_trans _ (leq12n 4)) // -ltnS ltn_pmod.
+Qed.
 
 End Arithmetics.
 
