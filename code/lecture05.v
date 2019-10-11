@@ -20,8 +20,22 @@ Proof.
 
 (* Notation "[ 'seq' x <- s | C ]" := (filter (fun x => C) s) *)
 
-Print all.
 Print filter.
+Print all.
+
+elim: s => //= x s IHs.
+
+rewrite /is_true.
+move=> /andP.
+(* Set Printing Coercions. *)
+rewrite /is_true.
+move=> [].
+move=> ->.
+move/IHs.
+move=>->.
+done.
+
+Restart.
 
 by elim: s => //= x s IHs /andP[-> /IHs->].
 Qed.
@@ -66,6 +80,8 @@ case.
 - move=> p _. exact: p.
 move=> _. done.
 Qed.
+
+  (* reflect P b -> (b <-> P). *)
 
 (** Essentially, a [reflect] predicate connects
     a _decidable_ proposition to its decision procedure.
@@ -120,7 +136,9 @@ if one defines a new logical connective.
 (* Set Printing All. *)
 (* Show Proof. *)
 
+About introTF.
 About elimTF.
+About elimF.
 
 Restart.
 
@@ -153,6 +171,7 @@ Proof.
 move=> ab.
 apply/andP.  (** [apply/] syntax *)
 Show Proof.  (** [introTF] view hint gets inserted *)
+About introTF.
 done.
 Qed.
 
@@ -204,8 +223,10 @@ Lemma nseqP (T : eqType) n (x y : T) :
   reflect (y = x /\ n > 0) (y \in nseq n x).
 Proof.
 rewrite mem_nseq andbC.
+(* apply: (iffP idP); move/andP. *)
 apply: (iffP andP).
-case=> /eqP->. done.
+(* reflect (x = y) (x == y) *)
+case. move/eqP. move=>->. done.
 case=>->. done.
 
 Restart.
@@ -223,9 +244,16 @@ About maxn_idPl.
 Lemma leq_max m n1 n2 :
   (m <= maxn n1 n2) = (m <= n1) || (m <= n2).
 Proof.
+(* move: (leq_total n2 n1). *)
+(* case. *)
+(* rewrite /is_true. *)
+(* Print eq. *)
+(* Set Printing All. *)
+(*   move/orP. case=> [le_n21 | le_n12]. *)
 case/orP: (leq_total n2 n1) => [le_n21 | le_n12].
 
-rewrite (maxn_idPl le_n21).
+Check (@maxn_idPl n1 n2).
+rewrite (@maxn_idPl n1 n2 le_n21).
 
 (** Why does this work?
     [maxn_idPl] is _not_ a function but behaves like one here *)
@@ -268,13 +296,17 @@ Search _ reflect in seq.
 (*** Specs as rewrite rules *)
 
 Example for_ltngtP m n :
-  (m <= n) && (n <= m) -> (m == n) || (m > n) || (m + n == 0).
+  (m <= n) && (n <= m) ->
+  (m == n) || (m > n) || (m + n == 0).
 Proof.
 by case: ltngtP.
 
 Restart.
 
 case: ltngtP.
+done.
+done.
+move=>/=.
 Abort.
 
 
@@ -325,7 +357,8 @@ Check (erefl true) : true.
 
 (** * [elimT] coercion *)
 
-(**  Allow the direct application of a reflection lemma to a boolean assertion.
+(**  Allow the direct application of a reflection lemma
+     to a boolean assertion.
 
     Coercion elimT : reflect >-> Funclass.
  *)
