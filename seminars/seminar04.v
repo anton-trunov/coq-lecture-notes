@@ -110,7 +110,7 @@ Hypothesis I : interchange f1 f2.
 
 Lemma units_same :
   e1 = e2.
-Proof. by move: (I e1 e2 e2 e1); do ! rewrite ?U1 ?U2. Qed.
+Proof. by move: (I e1 e2 e2 e1); rewrite !(U1, U2). Qed.
 
 Lemma operations_equal :
   f1 =2 f2.
