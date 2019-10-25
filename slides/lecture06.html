@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Canonical Structures</title>
+<meta name="author" content="Anton Trunov (Zilliqa Research)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/beige.css" id="theme"/>
+
+<link rel="stylesheet" href="./modifications.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Canonical Structures</h1><h2 class="author">Anton Trunov (Zilliqa Research)</h2><h2 class="date">25.10.2019</h2>
+</section>
+
+<section>
+<section id="slide-org3c2e7d0">
+<h2 id="org3c2e7d0">Canonical Structures and Coercions</h2>
+<ul>
+<li>Motivation: generic comparison operation</li>
+<li>x == y</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">T</span> : <span style="color: #ce537a; font-weight: bold;">Type</span><span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : T<span style="color: #4f97d7;">)</span> -&gt; bool
+
+<span style="color: #4f97d7; font-weight: bold;">Notation</span> <span style="color: #2d9574;">"x == y"</span> := <span style="color: #4f97d7;">(</span>eq_op _ x y<span style="color: #4f97d7;">)</span>.
+</pre>
+</div>
+<ul>
+<li><code>eq_op</code> is not possible to implement in general</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org26a1bcb">
+<h2 id="org26a1bcb">Solution: eqType structure</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Structure</span> <span style="color: #bc6ec5; font-weight: bold;">eqType</span> := Pack <span style="color: #4f97d7;">{</span>
+  <span style="color: #7590db;">sort</span> : <span style="color: #ce537a; font-weight: bold;">Type</span>;
+  eq_op : sort -&gt; sort -&gt; bool;
+  spec : <span style="color: #ce537a; font-weight: bold;">forall</span> <span style="color: #7590db;">x y</span>, eq_op x y = true &lt;-&gt; x = y
+<span style="color: #4f97d7;">}</span>.
+
+
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org5806b3f">
+<h2 id="org5806b3f">Solution: eqType structure</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Structure</span> <span style="color: #bc6ec5; font-weight: bold;">eqType</span> := Pack <span style="color: #4f97d7;">{</span>
+  <span style="color: #7590db;">sort</span> : <span style="color: #ce537a; font-weight: bold;">Type</span>;
+  eq_op : sort -&gt; sort -&gt; bool;
+  spec : <span style="color: #ce537a; font-weight: bold;">forall</span> <span style="color: #7590db;">x y</span>, eq_op x y = true &lt;-&gt; x = y
+<span style="color: #4f97d7;">}</span>.
+
+<span style="color: #4f97d7; font-weight: bold;">Coercion</span> <span style="color: #7590db;">sort</span> : eqType &gt;-&gt; Sortclass.
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgda61a20">
+<h2 id="orgda61a20">Solution: eqType structure</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Structure</span> <span style="color: #bc6ec5; font-weight: bold;">eqType</span> := Pack <span style="color: #4f97d7;">{</span>
+  <span style="color: #7590db;">sort</span> : <span style="color: #ce537a; font-weight: bold;">Type</span>;
+  eq_op : sort -&gt; sort -&gt; bool;
+  spec : <span style="color: #ce537a; font-weight: bold;">forall</span> <span style="color: #7590db;">x y</span>, eq_op x y = true &lt;-&gt; x = y
+<span style="color: #4f97d7;">}</span>.
+
+<span style="color: #4f97d7; font-weight: bold;">Coercion</span> <span style="color: #7590db;">sort</span> : eqType &gt;-&gt; Sortclass.
+
+<span style="color: #4f97d7; font-weight: bold;">Lemma</span> <span style="color: #bc6ec5; font-weight: bold;">eq_sym</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">T</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : T<span style="color: #4f97d7;">)</span> :
+  x == y -&gt; y == x.
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org03b63c6">
+<h2 id="org03b63c6">Solution: eqType structure</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Structure</span> <span style="color: #bc6ec5; font-weight: bold;">eqType</span> := Pack <span style="color: #4f97d7;">{</span>
+  <span style="color: #7590db;">sort</span> : <span style="color: #ce537a; font-weight: bold;">Type</span>;
+  eq_op : sort -&gt; sort -&gt; bool;
+  spec : <span style="color: #ce537a; font-weight: bold;">forall</span> <span style="color: #7590db;">x y</span>, eq_op x y = true &lt;-&gt; x = y
+<span style="color: #4f97d7;">}</span>.
+
+<span style="color: #4f97d7; font-weight: bold;">Coercion</span> <span style="color: #7590db;">sort</span> : eqType &gt;-&gt; Sortclass.
+
+<span style="color: #4f97d7; font-weight: bold;">Lemma</span> <span style="color: #bc6ec5; font-weight: bold;">eq_sym</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">T</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> :
+  x == y -&gt; y == x.
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org7a3024e">
+<h2 id="org7a3024e">Solution: eqType structure</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Structure</span> <span style="color: #bc6ec5; font-weight: bold;">eqType</span> := Pack <span style="color: #4f97d7;">{</span>
+  <span style="color: #7590db;">sort</span> : <span style="color: #ce537a; font-weight: bold;">Type</span>;
+  eq_op : sort -&gt; sort -&gt; bool;
+  spec : <span style="color: #ce537a; font-weight: bold;">forall</span> <span style="color: #7590db;">x y</span>, eq_op x y = true &lt;-&gt; x = y
+<span style="color: #4f97d7;">}</span>.
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #ce537a; font-weight: bold;">forall</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">T</span> : eqType<span style="color: #4f97d7;">)</span>,
+        sort T -&gt; sort T -&gt; bool
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org939d591">
+<h2 id="org939d591">Example</h2>
+<p>
+initially we have
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #a45bad;">1</span> == <span style="color: #a45bad;">2</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orge5da115">
+<h2 id="orge5da115">Example</h2>
+<p>
+unfold <code>==</code> notation
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op _ <span style="color: #a45bad;">1</span> <span style="color: #a45bad;">2</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgb2f0abc">
+<h2 id="orgb2f0abc">Example</h2>
+<p>
+add types and names
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?s</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span> : sort <span style="color: #7590db;">?s</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> : sort <span style="color: #7590db;">?s</span><span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org9bcef53">
+<h2 id="org9bcef53">Example</h2>
+<p>
+add types and names
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?s</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span> : sort <span style="color: #7590db;">?s</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> : sort <span style="color: #7590db;">?s</span><span style="color: #4f97d7;">)</span>
+eq_op <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?s</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span> : nat<span style="color: #4f97d7;">)</span>     <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> : nat<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgc865b9a">
+<h2 id="orgc865b9a">Example</h2>
+<p>
+so we need to be able to solve equations like
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-coq">sort <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?s</span> : eqType<span style="color: #4f97d7;">)</span> = nat
+</pre>
+</div>
+<ul>
+<li>type inference is undecidable in this case</li>
+<li>so we need hints</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org4953235">
+<h2 id="org4953235">Canonical Structures to the rescue</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">Canonical nat_eqType := Pack nat eqn proof.
+<span style="color: #4f97d7; font-weight: bold;">Print</span> Canonical Projections.
+...
+nat &lt;- sort <span style="color: #4f97d7;">(</span> nat_eqType <span style="color: #4f97d7;">)</span>
+...
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org2b5e072">
+<h2 id="org2b5e072">Example</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">
+
+eq_op <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?s</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span> : sort <span style="color: #7590db;">?s</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> : sort <span style="color: #7590db;">?s</span><span style="color: #4f97d7;">)</span>
+eq_op <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?s</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span> : nat<span style="color: #4f97d7;">)</span>     <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> : nat<span style="color: #4f97d7;">)</span>
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgf12d63b">
+<h2 id="orgf12d63b">Example</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">nat &lt;- sort <span style="color: #4f97d7;">(</span> nat_eqType <span style="color: #4f97d7;">)</span>
+
+eq_op <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?s</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span> : sort <span style="color: #7590db;">?s</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> : sort <span style="color: #7590db;">?s</span><span style="color: #4f97d7;">)</span>
+                         |             |
+                         v             v
+eq_op <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?s</span> : eqType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span> : nat<span style="color: #4f97d7;">)</span>     <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> : nat<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org631663a">
+<h2 id="org631663a">Example</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">nat &lt;- sort <span style="color: #4f97d7;">(</span> nat_eqType <span style="color: #4f97d7;">)</span>
+
+eq_op <span style="color: #4f97d7;">(</span><span style="color: #7590db;">nat_eqType</span> : eqType<span style="color: #4f97d7;">)</span>
+      <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span> : sort nat_eqType<span style="color: #4f97d7;">)</span>
+      <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span> : sort nat_eqType<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org4683128">
+<h2 id="org4683128">Equality for product type</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Definition</span> <span style="color: #bc6ec5; font-weight: bold;">pair_eq</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">A B</span> : eqType<span style="color: #4f97d7;">)</span>
+                   <span style="color: #4f97d7;">(</span><span style="color: #7590db;">u v</span> : A * B<span style="color: #4f97d7;">)</span> :=
+  <span style="color: #4f97d7;">(</span>u.<span style="color: #a45bad;">1</span> == v.<span style="color: #a45bad;">1</span><span style="color: #4f97d7;">)</span> &amp;&amp; <span style="color: #4f97d7;">(</span>u.<span style="color: #a45bad;">2</span> == v.<span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span>.
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org53f48a5">
+<h2 id="org53f48a5">Equality for product type</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Definition</span> <span style="color: #bc6ec5; font-weight: bold;">pair_eq</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">A B</span> : eqType<span style="color: #4f97d7;">)</span>
+                   <span style="color: #4f97d7;">(</span><span style="color: #7590db;">u v</span> : A * B<span style="color: #4f97d7;">)</span> :=
+  <span style="color: #4f97d7;">(</span>u.<span style="color: #a45bad;">1</span> == v.<span style="color: #a45bad;">1</span><span style="color: #4f97d7;">)</span> &amp;&amp; <span style="color: #4f97d7;">(</span>u.<span style="color: #a45bad;">2</span> == v.<span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span>.
+
+Canonical prod_eqType A B :=
+  Pack <span style="color: #4f97d7;">(</span>A * B<span style="color: #4f97d7;">)</span> pair_eq proof.
+
+
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org30a29ed">
+<h2 id="org30a29ed">Equality for product type</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Definition</span> <span style="color: #bc6ec5; font-weight: bold;">pair_eq</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">A B</span> : eqType<span style="color: #4f97d7;">)</span>
+                   <span style="color: #4f97d7;">(</span><span style="color: #7590db;">u v</span> : sort A * sort B<span style="color: #4f97d7;">)</span> :=
+  <span style="color: #4f97d7;">(</span>u.<span style="color: #a45bad;">1</span> == v.<span style="color: #a45bad;">1</span><span style="color: #4f97d7;">)</span> &amp;&amp; <span style="color: #4f97d7;">(</span>u.<span style="color: #a45bad;">2</span> == v.<span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span>.
+
+Canonical prod_eqType A B :=
+  Pack <span style="color: #4f97d7;">(</span>sort A * sort B<span style="color: #4f97d7;">)</span> pair_eq proof.
+
+
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org3fcd219">
+<h2 id="org3fcd219">Equality for product type</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Definition</span> <span style="color: #bc6ec5; font-weight: bold;">pair_eq</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">A B</span> : eqType<span style="color: #4f97d7;">)</span>
+                   <span style="color: #4f97d7;">(</span><span style="color: #7590db;">u v</span> : sort A * sort B<span style="color: #4f97d7;">)</span> :=
+  <span style="color: #4f97d7;">(</span>u.<span style="color: #a45bad;">1</span> == v.<span style="color: #a45bad;">1</span><span style="color: #4f97d7;">)</span> &amp;&amp; <span style="color: #4f97d7;">(</span>u.<span style="color: #a45bad;">2</span> == v.<span style="color: #a45bad;">2</span><span style="color: #4f97d7;">)</span>.
+
+Canonical prod_eqType A B :=
+  Pack <span style="color: #4f97d7;">(</span>sort A * sort B<span style="color: #4f97d7;">)</span> pair_eq proof.
+
+<span style="color: #4f97d7; font-weight: bold;">Print</span> Canonical Projections.
+...
+prod &lt;- sort <span style="color: #4f97d7;">(</span> prod_eqType <span style="color: #4f97d7;">)</span> 
+...
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgcab138a">
+<h2 id="orgcab138a">Example</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">Compute <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span> == <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>.
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org80e528a">
+<h2 id="org80e528a">Example</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">Compute <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span> == <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>.
+true
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgb403c99">
+<h2 id="orgb403c99">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span> == <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgde2ebd4">
+<h2 id="orgde2ebd4">How does it work?</h2>
+<p>
+desugars into
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op _ <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span> 
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org68b5b2e">
+<h2 id="org68b5b2e">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+
+
+
+
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org0553f63">
+<h2 id="org0553f63">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+                            ..
+                         nat * bool
+
+
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org22df969">
+<h2 id="org22df969">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+                            ..
+                         nat * bool
+sort <span style="color: #7590db;">?T</span> &#8801; nat * bool
+
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgf52b226">
+<h2 id="orgf52b226">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+                            ..
+                         nat * bool
+sort <span style="color: #7590db;">?T</span> &#8801; prod nat bool
+
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org1184000">
+<h2 id="org1184000">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+                            ..
+                         nat * bool
+sort <span style="color: #7590db;">?T</span> &#8801; prod nat bool
+prod &lt;- sort <span style="color: #4f97d7;">(</span> prod_eqType <span style="color: #4f97d7;">)</span> 
+
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgd8b753e">
+<h2 id="orgd8b753e">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+                            ..
+                         nat * bool
+sort <span style="color: #7590db;">?T</span> &#8801; prod nat bool
+prod &lt;- sort <span style="color: #4f97d7;">(</span> prod_eqType <span style="color: #4f97d7;">)</span> 
+sort <span style="color: #4f97d7;">(</span>prod_eqType <span style="color: #7590db;">?A</span> <span style="color: #7590db;">?B</span><span style="color: #4f97d7;">)</span> &#8801; prod nat bool
+
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org081302f">
+<h2 id="org081302f">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+                            ..
+                         nat * bool
+sort <span style="color: #7590db;">?T</span> &#8801; prod nat bool
+prod &lt;- sort <span style="color: #4f97d7;">(</span> prod_eqType <span style="color: #4f97d7;">)</span> 
+sort <span style="color: #4f97d7;">(</span>prod_eqType <span style="color: #7590db;">?A</span> <span style="color: #7590db;">?B</span><span style="color: #4f97d7;">)</span> &#8801; prod nat bool
+<span style="color: #4f97d7;">(</span>sort <span style="color: #7590db;">?A</span><span style="color: #4f97d7;">)</span> * <span style="color: #4f97d7;">(</span>sort <span style="color: #7590db;">?B</span><span style="color: #4f97d7;">)</span> &#8801; prod nat bool
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgc07c6fc">
+<h2 id="orgc07c6fc">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+                            ..
+                         nat * bool
+sort <span style="color: #7590db;">?T</span> &#8801; prod nat bool
+prod &lt;- sort <span style="color: #4f97d7;">(</span> prod_eqType <span style="color: #4f97d7;">)</span> 
+sort <span style="color: #4f97d7;">(</span>prod_eqType <span style="color: #7590db;">?A</span> <span style="color: #7590db;">?B</span><span style="color: #4f97d7;">)</span> &#8801; prod nat bool
+prod <span style="color: #4f97d7;">(</span>sort <span style="color: #7590db;">?A</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>sort <span style="color: #7590db;">?B</span><span style="color: #4f97d7;">)</span> &#8801; prod nat bool
+
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org2e25c1a">
+<h2 id="org2e25c1a">How does it work?</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">eq_op : <span style="color: #4f97d7;">(</span><span style="color: #7590db;">?T</span> : eqType<span style="color: #4f97d7;">)</span> -&gt; <span style="color: #4f97d7;">(</span><span style="color: #7590db;">x y</span> : sort T<span style="color: #4f97d7;">)</span> -&gt; bool
+eq_op   _                <span style="color: #4f97d7;">(</span><span style="color: #a45bad;">1</span>, true<span style="color: #4f97d7;">)</span>
+                            ..
+                         nat * bool
+sort <span style="color: #7590db;">?T</span> &#8801; prod nat bool
+prod &lt;- sort <span style="color: #4f97d7;">(</span> prod_eqType <span style="color: #4f97d7;">)</span> 
+sort <span style="color: #4f97d7;">(</span>prod_eqType <span style="color: #7590db;">?A</span> <span style="color: #7590db;">?B</span><span style="color: #4f97d7;">)</span> &#8801; prod nat bool
+prod <span style="color: #4f97d7;">(</span>sort <span style="color: #7590db;">?A</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>sort <span style="color: #7590db;">?B</span><span style="color: #4f97d7;">)</span> &#8801; prod nat bool
+<span style="color: #4f97d7;">(</span>sort <span style="color: #7590db;">?A</span><span style="color: #4f97d7;">)</span> &#8801; nat and <span style="color: #4f97d7;">(</span>sort <span style="color: #7590db;">?B</span><span style="color: #4f97d7;">)</span> &#8801; bool
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org75919eb">
+<h2 id="org75919eb">Canonical Structures vs Typeclasses</h2>
+<ul>
+<li>Canonical Structures work at the unification level (predictable)</li>
+<li>Typeclasses mechanism uses <code>eauto</code>-like proof search</li>
+<li>Canonical structures are <span class="underline">not</span> tied to types, those can be keyed on terms!</li>
+<li>CS can be used to implement overloading, implicit program (and proof) construction</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org5f6ea0b">
+<h2 id="org5f6ea0b">Keying on terms</h2>
+<p>
+Mathcomp's <code>bigop</code> module has the following:
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-coq">Canonical addn_monoid := Law addnA add0n addn0.
+Canonical muln_monoid := Law mulnA mul1n muln1.
+Canonical maxn_monoid := Law maxnA max0n maxn0.
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org8d01047">
+<h2 id="org8d01047">Keying on terms: demo</h2>
+</section>
+</section>
+<section>
+<section id="slide-orgf1b7b09">
+<h2 id="orgf1b7b09">Further reading</h2>
+<ul>
+<li>Mathematical Components book - E. Tassi, A. Mahboubi</li>
+<li>Packaging Mathematical Structures - G. Gonthier et al.(2009)</li>
+<li>Canonical Structures for the Working Coq User - A. Mahboubi, E. Tassi(2013)</li>
+<li>Generic Proof Tools and Finite Group Theory - F. Garillot(2011)</li>
+<li>How to Make Ad Hoc Proof Automation Less Ad Hoc - A. Nanevski et al.(2013)</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'none', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>

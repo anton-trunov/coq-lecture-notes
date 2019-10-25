@@ -1,0 +1,357 @@
+# How to make it work with Spacemacs
+# 1. Add the following to .spacemacs file
+# (org :variables
+#      org-enable-github-support t
+#      org-enable-reveal-js-support t)
+# 2. Use M-x org-reveal-export-to-html-and-browse
+
+#+TITLE: Canonical Structures
+#+DATE: 25.10.2019
+#+AUTHOR: Anton Trunov (Zilliqa Research)
+#+EMAIL: https://github.com/anton-trunov
+#+OPTIONS: num:nil toc:nil timestamp:nil
+#+REVEAL_TRANS: none
+# none | fade | slide | convex | concave | zoom
+#+REVEAL_THEME: beige
+# default | beige | sky | night | serif | simple | moon
+# /League/Sky/Beige/Simple/Serif/Blood/Night/Moon/Solarized
+#+REVEAL_EXTRA_CSS: ./modifications.css
+
+* Canonical Structures and Coercions
+- Motivation: generic comparison operation
+- x == y
+#+BEGIN_SRC coq
+  eq_op : (T : Type) -> (x y : T) -> bool
+
+  Notation "x == y" := (eq_op _ x y).
+#+END_SRC
+- =eq_op= is not possible to implement in general
+* Solution: eqType structure
+#+BEGIN_SRC coq
+  Structure eqType := Pack {
+    sort : Type;
+    eq_op : sort -> sort -> bool;
+    spec : forall x y, eq_op x y = true <-> x = y
+  }.
+
+
+
+
+
+#+END_SRC
+* Solution: eqType structure
+#+BEGIN_SRC coq
+  Structure eqType := Pack {
+    sort : Type;
+    eq_op : sort -> sort -> bool;
+    spec : forall x y, eq_op x y = true <-> x = y
+  }.
+
+  Coercion sort : eqType >-> Sortclass.
+
+
+
+#+END_SRC
+* Solution: eqType structure
+#+BEGIN_SRC coq
+  Structure eqType := Pack {
+    sort : Type;
+    eq_op : sort -> sort -> bool;
+    spec : forall x y, eq_op x y = true <-> x = y
+  }.
+
+  Coercion sort : eqType >-> Sortclass.
+
+  Lemma eq_sym (T : eqType) (x y : T) :
+    x == y -> y == x.
+#+END_SRC
+* Solution: eqType structure
+#+BEGIN_SRC coq
+  Structure eqType := Pack {
+    sort : Type;
+    eq_op : sort -> sort -> bool;
+    spec : forall x y, eq_op x y = true <-> x = y
+  }.
+
+  Coercion sort : eqType >-> Sortclass.
+
+  Lemma eq_sym (T : eqType) (x y : sort T) :
+    x == y -> y == x.
+#+END_SRC
+* Solution: eqType structure
+#+BEGIN_SRC coq
+  Structure eqType := Pack {
+    sort : Type;
+    eq_op : sort -> sort -> bool;
+    spec : forall x y, eq_op x y = true <-> x = y
+  }.
+#+END_SRC
+#+BEGIN_SRC coq
+  eq_op : forall (T : eqType),
+          sort T -> sort T -> bool
+#+END_SRC
+* Example
+initially we have
+#+BEGIN_SRC coq
+  1 == 2
+#+END_SRC
+* Example
+unfold ~==~ notation
+#+BEGIN_SRC coq
+  eq_op _ 1 2
+#+END_SRC
+* Example
+add types and names
+#+BEGIN_SRC coq
+  eq_op (?s : eqType) (1 : sort ?s) (2 : sort ?s)
+#+END_SRC
+* Example
+add types and names
+#+BEGIN_SRC coq
+  eq_op (?s : eqType) (1 : sort ?s) (2 : sort ?s)
+  eq_op (?s : eqType) (1 : nat)     (2 : nat)
+#+END_SRC
+* Example
+so we need to be able to solve equations like
+#+BEGIN_SRC coq
+  sort (?s : eqType) = nat
+#+END_SRC
+- type inference is undecidable in this case
+- so we need hints
+* Canonical Structures to the rescue
+#+BEGIN_SRC coq
+Canonical nat_eqType := Pack nat eqn proof.
+Print Canonical Projections.
+...
+nat <- sort ( nat_eqType )
+...
+#+END_SRC
+* Example
+#+BEGIN_SRC coq
+
+
+  eq_op (?s : eqType) (1 : sort ?s) (2 : sort ?s)
+  eq_op (?s : eqType) (1 : nat)     (2 : nat)
+
+
+
+#+END_SRC
+* Example
+#+BEGIN_SRC coq
+  nat <- sort ( nat_eqType )
+    
+  eq_op (?s : eqType) (1 : sort ?s) (2 : sort ?s)
+                           |             |
+                           v             v
+  eq_op (?s : eqType) (1 : nat)     (2 : nat)
+#+END_SRC
+* Example
+#+BEGIN_SRC coq
+  nat <- sort ( nat_eqType )
+    
+  eq_op (nat_eqType : eqType)
+        (1 : sort nat_eqType)
+        (2 : sort nat_eqType)
+#+END_SRC
+* Equality for product type
+#+BEGIN_SRC coq
+Definition pair_eq (A B : eqType)
+                   (u v : A * B) :=
+  (u.1 == v.1) && (u.2 == v.2).
+
+
+
+
+
+
+
+
+#+END_SRC
+* Equality for product type
+#+BEGIN_SRC coq
+Definition pair_eq (A B : eqType)
+                   (u v : A * B) :=
+  (u.1 == v.1) && (u.2 == v.2).
+
+Canonical prod_eqType A B :=
+  Pack (A * B) pair_eq proof.
+
+
+
+
+
+#+END_SRC
+* Equality for product type
+#+BEGIN_SRC coq
+Definition pair_eq (A B : eqType)
+                   (u v : sort A * sort B) :=
+  (u.1 == v.1) && (u.2 == v.2).
+
+Canonical prod_eqType A B :=
+  Pack (sort A * sort B) pair_eq proof.
+
+
+
+
+
+#+END_SRC
+* Equality for product type
+#+BEGIN_SRC coq
+Definition pair_eq (A B : eqType)
+                   (u v : sort A * sort B) :=
+  (u.1 == v.1) && (u.2 == v.2).
+
+Canonical prod_eqType A B :=
+  Pack (sort A * sort B) pair_eq proof.
+
+Print Canonical Projections.
+...
+prod <- sort ( prod_eqType ) 
+...
+#+END_SRC
+* Example
+#+BEGIN_SRC coq
+Compute (1, true) == (1, true).
+
+#+END_SRC
+* Example
+#+BEGIN_SRC coq
+Compute (1, true) == (1, true).
+true
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+(1, true) == (1, true)
+#+END_SRC
+* How does it work?
+desugars into
+#+BEGIN_SRC coq
+eq_op _ (1, true) (1, true) 
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+
+
+
+
+
+
+
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+                            ..
+                         nat * bool
+
+
+
+
+
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+                            ..
+                         nat * bool
+sort ?T ≡ nat * bool
+
+
+
+
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+                            ..
+                         nat * bool
+sort ?T ≡ prod nat bool
+
+
+
+
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+                            ..
+                         nat * bool
+sort ?T ≡ prod nat bool
+prod <- sort ( prod_eqType ) 
+
+
+
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+                            ..
+                         nat * bool
+sort ?T ≡ prod nat bool
+prod <- sort ( prod_eqType ) 
+sort (prod_eqType ?A ?B) ≡ prod nat bool
+
+
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+                            ..
+                         nat * bool
+sort ?T ≡ prod nat bool
+prod <- sort ( prod_eqType ) 
+sort (prod_eqType ?A ?B) ≡ prod nat bool
+(sort ?A) * (sort ?B) ≡ prod nat bool
+
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+                            ..
+                         nat * bool
+sort ?T ≡ prod nat bool
+prod <- sort ( prod_eqType ) 
+sort (prod_eqType ?A ?B) ≡ prod nat bool
+prod (sort ?A) (sort ?B) ≡ prod nat bool
+
+#+END_SRC
+* How does it work?
+#+BEGIN_SRC coq
+eq_op : (?T : eqType) -> (x y : sort T) -> bool
+eq_op   _                (1, true)
+                            ..
+                         nat * bool
+sort ?T ≡ prod nat bool
+prod <- sort ( prod_eqType ) 
+sort (prod_eqType ?A ?B) ≡ prod nat bool
+prod (sort ?A) (sort ?B) ≡ prod nat bool
+(sort ?A) ≡ nat and (sort ?B) ≡ bool
+#+END_SRC
+* Canonical Structures vs Typeclasses
+- Canonical Structures work at the unification level (predictable)
+- Typeclasses mechanism uses =eauto=-like proof search
+- Canonical structures are _not_ tied to types, those can be keyed on terms!
+- CS can be used to implement overloading, implicit program (and proof) construction
+* Keying on terms
+Mathcomp's =bigop= module has the following:
+#+BEGIN_SRC coq
+Canonical addn_monoid := Law addnA add0n addn0.
+Canonical muln_monoid := Law mulnA mul1n muln1.
+Canonical maxn_monoid := Law maxnA max0n maxn0.
+#+END_SRC
+* Keying on terms: demo
+* Further reading
+- Mathematical Components book - E. Tassi, A. Mahboubi
+- Packaging Mathematical Structures - G. Gonthier et al.(2009)
+- Canonical Structures for the Working Coq User - A. Mahboubi, E. Tassi(2013)
+- Generic Proof Tools and Finite Group Theory - F. Garillot(2011)
+- How to Make Ad Hoc Proof Automation Less Ad Hoc - A. Nanevski et al.(2013)
