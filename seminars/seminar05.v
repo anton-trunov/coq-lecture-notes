@@ -40,8 +40,8 @@ Lemma prefix_spec c n s :
 Proof.
 Admitted.
 
-Lemma suffix_spec c n s :
-  forall i, i < size s -> nth (leftpad c n s) (n - size s + i) = nth s i.
+Lemma suffix_spec c n s i :
+  nth (leftpad c n s) (n - size s + i) = nth s i.
 Proof.
 Admitted.
 
