@@ -13,20 +13,17 @@ Variant eq_xor_neq (T : eqType) (x y : T) : bool -> bool -> Set :=
 
 Lemma eqVneq (T : eqType) (x y : T) :
   eq_xor_neq x y (y == x) (x == y).
-Proof.
-Admitted.
+Proof. by rewrite eq_sym; case: (altP eqP); constructor. Qed.
 
 (* Use eqVneq to prove the following lemma.
    Hint: use [case: eqVneq] *)
 Lemma eqVneq_example (T : eqType) (w x y z : T) :
   w == x -> z == y ->
   (x == w) /\ (y == z) /\ (z == y).
-Proof.
-Admitted.
+Proof. by case: eqVneq; case: eqVneq. Qed.
 
 Lemma andX (a b : bool) : reflect (a * b) (a && b).
-Proof.
-Admitted.
+Proof. by case: a; case: b; constructor=> //; case. Qed.
 
 Arguments andX {a b}.
 
@@ -34,8 +31,7 @@ Arguments andX {a b}.
     and [rewrite] tactic *)
 Lemma andX_example a b :
   a && b -> b && a && a && b.
-Proof.
-Admitted.
+Proof. by move=> ab; rewrite !(andX ab). Qed.
 
 (* one can rewrite with andX *)
 
@@ -52,20 +48,23 @@ Lemma foldr_fusion {A B C} (f : A -> B -> B) (v : B)
   (forall x y, h (g x y) = f x (h y)) ->
   (h \o foldr g w) =1 foldr f v.
 Proof.
-Admitted.
+move=> h_acc h_gf.
+elim => //= x xs IHxs; by rewrite h_gf IHxs.
+Qed.
 
 Definition flip {A B C} (f : A -> B -> C) := fun x y => f y x.
 
 Lemma foldl_via_foldr A B (f : B -> A -> B) :
   flip (foldr (fun x rec => rec \o (flip f x)) id) =2 foldl f.
-Proof.
-Admitted.
+Proof. by rewrite /flip; move=> v xs; elim: xs v=> /=. Qed.
 
 
 Lemma foldl_via_foldr2 {A B} (f : B -> A -> B) v :
   (foldr (flip f) v) \o rev =1 foldl f v.
 Proof.
-Admitted.
+move=> xs; elim: xs v => //= x xs IH v.
+by rewrite -cat1s rev_cat foldr_cat /= IH.
+Qed.
 
 
 (* Let's generalize left and right folds over lists.
@@ -85,13 +84,11 @@ Definition foldk {A B : Type} (f : A -> B -> (B -> B) -> B) :=
 
 Lemma foldr_via_foldk A B (f : A -> B -> B) :
   foldk (fun a b k => f a (k b)) =2 foldr f.
-Proof.
-Admitted.
+Proof. by move=> acc; elim=> //= x xs ->. Qed.
 
 Lemma foldl_via_foldk A B (f : B -> A -> B) :
   foldk (fun a b k => k (f b a)) =2 foldl f.
-Proof.
-Admitted.
+Proof. by []. Qed.
 
 End RecursionSchemes.
 
