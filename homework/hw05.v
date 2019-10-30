@@ -102,7 +102,13 @@ Definition FIX := forall A : Type, (A -> A) -> A.
 
 Lemma not_fix :
   FIX -> False.
-Proof. by move/(_ False id). Qed.
+Proof.
+by move/(_ False id).
+
+Restart.
+
+exact.
+Qed.
 
 End IntLogic.
 
