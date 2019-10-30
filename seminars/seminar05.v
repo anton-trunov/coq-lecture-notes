@@ -149,7 +149,9 @@ Proof.
 rewrite ![in LHS]mulSnr mul0n add0n !fib_add_succ mulnDl !mulnn -expnSr.
 rewrite -addnBA; last by rewrite -(mul1n (_ ^ 3)) -mulnA leq_mul ?expnS ?leq_mul ?fib_monotone.
 case: n=> // n; rewrite addSn fib_add_succ /=.
+(* optional step, it's here just to clarify the form of the goal for the human *)
 move: (fib n) (fib n.+1) => x y.
+(* massage the goal so the [lia] tactic is able to finish it off *)
 rewrite !expnS !expn0 !muln1 -!plusE -!multE -!minusE; lia.
 Qed.
 
