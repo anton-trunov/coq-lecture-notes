@@ -29,6 +29,11 @@ Restart.
 
 (* let's golf it a bit, just for fun *)
 exact: (@^~ id).
+
+Restart.
+(* and then a bit more *)
+exact.
+
 Qed.
 
 Lemma dne_True : ~ ~ True -> True.
