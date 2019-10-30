@@ -170,9 +170,7 @@ Fixpoint compile (e : expr) : prog :=
 Lemma run_append p1 p2 s :
   run (p1 ++ p2) s = run p2 (run p1 s).
 Proof.
-elim: p1 s => // i1 p1 IHp1 s.
-case: i1 => [n /= | ]; first by rewrite IHp1.
-by case: s=> [| a1 [| a2 s]] /=; rewrite IHp1.
+elim: p1 s => //=.
 Qed.
 
 Lemma compile_correct_generalized e s :
