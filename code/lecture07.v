@@ -12,8 +12,12 @@ Print eq_op.
   eq_op = fun T : eqType => Equality.op (Equality.class T)
       : forall T : eqType, rel T
 
+rel T := T -> bool
   Argument T is implicit and maximally inserted
 *)
+
+(* ssrbool *)
+(* prop_in1. *)
 
 Check eqE.
 

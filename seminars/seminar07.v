@@ -43,4 +43,3 @@ Variable prf_eq : true && false = false.
 (** The desired result = true && false *)
 
 End LHS.
-
