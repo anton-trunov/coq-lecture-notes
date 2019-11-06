@@ -20,7 +20,8 @@ rel T := T -> bool
 (* prop_in1. *)
 
 Check eqE.
-
+Print eq_op.
+Unset Printing Notations.
 Lemma eqn_back_to_eq_op n :
   eqn n n.
 Proof.
