@@ -98,6 +98,5 @@ Fail Check forall (m : even_nat), m == m.
 
 Check forall (m : even_nat), m == m.
 
-Lemma odd_nat_eq_refl (n : even_nat) :
+Lemma even_nat_eq_refl (n : even_nat) : n == n.
 Proof. by rewrite eq_refl. Qed.
-
