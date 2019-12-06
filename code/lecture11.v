@@ -95,7 +95,9 @@ Lemma is_brtree_node l x r :
   ((bt_size l == bt_size r) ||
    (bt_size l == (bt_size r).+1)).
 Proof.
-Admitted.
+rewrite /is_brtree -/is_brtree; case/and3P=> ->->.
+by case/orP; case: ltngtP=> // ->; rewrite orbT.
+Qed.
 
 (** Exercise *)
 Lemma bt_size1 (bt : btree T) :
@@ -103,17 +105,70 @@ Lemma bt_size1 (bt : btree T) :
   exists x,
     bt = BTnode BTempty x BTempty.
 Proof.
-Admitted.
+by case: bt=> // [[|//]] a [|//]; exists a.
+Qed.
+
+Lemma half_double n :
+  (n.*2.+1./2 = n) * (n.*2./2 = n) * (0 < n -> (n.*2).-1./2 = n.-1).
+Proof.
+rewrite doubleK -add1n /= uphalf_double; do ! split.
+by case: n=> //= n _; rewrite uphalf_double.
+Qed.
 
 (** Exercise *)
-Lemma brt_diff_correct brt s :
+Lemma brt_diff_correct brt (s : nat) :
   is_brtree brt ->
   (bt_size brt == s) ||
   (bt_size brt == s.+1) ->
   brt_diff brt s = bt_size brt - s.
 Proof.
-Admitted.
-
+elim: brt s=> // l IHl a r IHr s.
+move/is_brtree_node=> Eq.
+simpl.
+rewrite eqSS; case/orP=> /eqP Sz.
+- rewrite IHl ?Eq //.
+  rewrite IHr ?Eq //.
+  rewrite Sz subnn.
+  rewrite -Sz /=.
+  case: Eq=> [] [] _ _; case/orP=> /eqP->.
+  + rewrite odd_add addbb /=.
+    by rewrite addnn divn2 half_double subnn.
+  + rewrite addSn /= negbK odd_add addbb.
+    by rewrite addnn divn2 half_double subnn.
+- rewrite -Sz /=.
+  case: Eq=> [] [] _ _; case/orP=> /eqP->.
+  + by rewrite addnn divn2 half_double eq_refl.
+  by rewrite addSn addnn divn2 half_double eq_refl.
+- rewrite -Sz /=.
+  case: Eq=> [] [] _ _; case/orP=> /eqP->.
+  + by rewrite addnn divn2 half_double eq_refl.
+  by rewrite addSn addnn divn2 /= half_double eq_refl.
+rewrite -Sz addn_eq0.
+case: ifPn; first by case/andP=> /eqP-> /eqP->.
+rewrite negb_and.
+(* case/orP. *)
+rewrite IHl ?Eq // ?IHr ?Eq //.
+case: Eq=> [] [] _ _; case/orP=> /eqP->.
+rewrite orbb -lt0n=> Sr_gt0.
+rewrite odd_add addbb /=.
+rewrite subSnn.
+rewrite addnn divn2 half_double //.
+move: Sr_gt0; case: (bt_size r)=> // n _.
+by rewrite subSnn.
+rewrite addSn /= odd_add addbb /=.
+move=> _.
+rewrite addnn divn2 half_double //.
+by rewrite !subSnn.
+case: Eq=> [] [] _ _; case/orP=> /eqP->.
+case: (bt_size r)=> // n.
+apply/orP; right.
+by rewrite addnn divn2 half_double.
+by rewrite addSn addnn divn2 half_double eq_refl.
+case: Eq=> [] [] _ _; case/orP=> /eqP->.
+by rewrite addnn divn2 half_double eq_refl.
+apply/orP; right.
+by rewrite addSn addnn divn2 half_double eq_refl.
+Qed.
 
 (** The spec of [brt_size] is [bt_size] *)
 Lemma brt_size_correct brt :
@@ -211,9 +266,84 @@ Lemma br_remove_min_is_brtree bt :
   is_brtree bt ->
   is_brtree (br_remove_min bt).2.
 Proof.
+elim: bt=> // l IHl x r IHr.
+(** Lots of attempts but does not work *)
 Admitted.
 
 End BraunTreeRemove.
+
+
+
+(** https://github.com/QuickChick/QuickChick,
+    opam install coq-quickchick *)
+From QuickChick Require Import QuickChick.
+Import QcDefaultNotation. Open Scope qc_scope.
+Import GenLow GenHigh.
+Set Warnings "-extraction-opaque-accessed,-extraction".
+
+Derive Arbitrary for btree.
+(**
+GenSizedbtree is defined
+Shrinkbtree is defined
+*)
+
+Derive Show for btree.
+(** ShowTree is defined *)
+
+QuickChick (fun bt => is_brtree ((br_remove_min 100 bt).2)).
+(**
+QuickChecking (fun bt => is_brtree (br_remove_min 100 bt).2)
+/Users/anton/.opam/coq8.9/bin/ocamldep.opt -modules QuickChickafa16c.ml > QuickChickafa16c.ml.depends
+/Users/anton/.opam/coq8.9/bin/ocamlc.opt -c -o QuickChickafa16c.cmo QuickChickafa16c.ml
+/Users/anton/.opam/coq8.9/bin/ocamlopt.opt -c -o QuickChickafa16c.cmx QuickChickafa16c.ml
+/Users/anton/.opam/coq8.9/bin/ocamlopt.opt QuickChickafa16c.cmx -o QuickChickafa16c.native
+BTnode (BTnode BTempty 0 BTempty) 0 (BTnode (BTnode BTempty 0 BTempty) 0 BTempty)
+*** Failed after 4 tests and 10 shrinks. (0 discards)
+*)
+
+
+
+(** This does not look like a valid counterexample.
+    Oh, wait, we forgot to constraint the inputs to
+    the [br_remove_min] function. *)
+
+QuickChick (fun bt => is_brtree bt ==>
+                      is_brtree ((br_remove_min 42 bt).2)).
+(**
+QuickChecking (fun bt => is_brtree bt ==> is_brtree (br_remove_min 100 bt).2)
+/Users/anton/.opam/coq8.9/bin/ocamldep.opt -modules QuickChick93e386.ml > QuickChick93e386.ml.depends
+/Users/anton/.opam/coq8.9/bin/ocamlc.opt -c -o QuickChick93e386.cmo QuickChick93e386.ml
+/Users/anton/.opam/coq8.9/bin/ocamlopt.opt -c -o QuickChick93e386.cmx QuickChick93e386.ml
+/Users/anton/.opam/coq8.9/bin/ocamlopt.opt QuickChick93e386.cmx -o QuickChick93e386.native
++++ Passed 10000 tests (0 discards)
+*)
+
+(** So we gain confidence in the statement and
+    can continue proving it -- it's a nice exercise,
+    but it's pointless because it's easy to see that
+    [br_remove_min] does not always return a minumum.
+    (you have probably spotted that it does not rely on
+     a less-or-equal relation like [br_insert] does).
+    Let's demonstrate it using QuickChick.
+ *)
+
+QuickChick (fun bt =>
+              is_brtree bt ==>
+              let: (min1, bt1) := (br_remove_min 42 bt) in
+              let: (min2, _)   := (br_remove_min 42 bt1) in
+              min1 <= min2).
+(**
+QuickChecking (fun bt =>
+ is_brtree bt ==>
+ (let '(min1, bt1) := br_remove_min 42 bt in
+  let '(min2, _) := br_remove_min 42 bt1 in min1 <= min2))
+/Users/anton/.opam/coq8.9/bin/ocamldep.opt -modules QuickChick1e72ee.ml > QuickChick1e72ee.ml.depends
+/Users/anton/.opam/coq8.9/bin/ocamlc.opt -c -o QuickChick1e72ee.cmo QuickChick1e72ee.ml
+/Users/anton/.opam/coq8.9/bin/ocamlopt.opt -c -o QuickChick1e72ee.cmx QuickChick1e72ee.ml
+/Users/anton/.opam/coq8.9/bin/ocamlopt.opt QuickChick1e72ee.cmx -o QuickChick1e72ee.native
+BTnode (BTnode BTempty 1 BTempty) 0 BTempty
+*** Failed after 32 tests and 3 shrinks. (0 discards)
+*)
 
 
 (** Packing it all together *)
