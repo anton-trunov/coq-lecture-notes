@@ -376,6 +376,11 @@ the year 2000 by John Hughes for Haskell
 For more detail about QuickChick see also
 "Foundational Property-Based Testing" by
 Paraskevopoulou, Hritcu, Denes, Lampropoulos, Pierce
+
+Also, "QuickChick: Property-Based Testing in Coq"
+by Lampropoulos and Pierce provides a gentle
+introduction into the topic:
+https://softwarefoundations.cis.upenn.edu/qc-current/index.html
  *)
 
 From QuickChick Require Import QuickChick.
