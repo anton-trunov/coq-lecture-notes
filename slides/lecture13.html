@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Verification of Imperative Algorithms</title>
+<meta name="author" content="Anton Trunov (Zilliqa Research)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/beige.css" id="theme"/>
+
+<link rel="stylesheet" href="./modifications.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Verification of Imperative Algorithms</h1><h2 class="author">Anton Trunov (Zilliqa Research)</h2><h2 class="date">13.12.2019</h2>
+</section>
+
+<section>
+<section id="slide-orgb2b2eb8">
+<h2 id="orgb2b2eb8">Problem</h2>
+<ul>
+<li>We want to prove properties of imperative algorithms, e.g.
+<ul>
+<li>Array-based quicksort</li>
+<li>Union-find</li>
+<li>Linked lists</li>
+<li>&#x2026;</li>
+
+</ul></li>
+<li>But Coq s a purely functional language</li>
+<li>We need
+<ul>
+<li>to model imperative constructs and</li>
+<li>a reasoning framework</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org7914558">
+<h2 id="org7914558">Hoare-style reasoning to the rescue</h2>
+<ul>
+<li>Many interactive program verification tools are Hoare-style logic based.</li>
+<li><code>{P} C {Q}</code></li>
+<li>Partial correctness vs Total correctness</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org8ebdd1f">
+<h2 id="org8ebdd1f">Partial correctness</h2>
+<ul>
+<li>If a precondition <code>P</code> holds</li>
+<li><span class="underline">and</span> program <code>C</code> terminates</li>
+<li>then postcondition <code>Q</code> holds</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgdebdc40">
+<h2 id="orgdebdc40">Total correctness</h2>
+<ul>
+<li>If a precondition <code>P</code> holds</li>
+<li>then program <code>C</code> terminates</li>
+<li><span class="underline">and</span> postcondition <code>Q</code> holds</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org89feb84">
+<h2 id="org89feb84">How do we represent programs in Coq?</h2>
+<ul>
+<li>Deep embedding</li>
+<li>Shallow embedding</li>
+<li>Characteristic formulae</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org3d69f67">
+<h2 id="org3d69f67">Deep Embedding</h2>
+<p>
+Deeply embedded IMP language
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Inductive</span> <span style="color: #bc6ec5; font-weight: bold;">com</span> : <span style="color: #ce537a; font-weight: bold;">Type</span> :=
+  | CSkip : com
+  | CAss <span style="color: #4f97d7;">(</span><span style="color: #7590db;">v</span> : name<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">a</span> : aexp<span style="color: #4f97d7;">)</span>
+  | CSeq <span style="color: #4f97d7;">(</span><span style="color: #7590db;">c1 c2</span> : com<span style="color: #4f97d7;">)</span>
+  | CIf <span style="color: #4f97d7;">(</span><span style="color: #7590db;">cond</span> : bexp<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">cthen celse</span> : com<span style="color: #4f97d7;">)</span>
+  | CWhile <span style="color: #4f97d7;">(</span><span style="color: #7590db;">cond</span> : bexp<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">body</span> : com<span style="color: #4f97d7;">)</span>.
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Inductive</span> <span style="color: #bc6ec5; font-weight: bold;">aexp</span> : <span style="color: #ce537a; font-weight: bold;">Type</span> :=
+  | ANum <span style="color: #4f97d7;">(</span><span style="color: #7590db;">n</span> : nat<span style="color: #4f97d7;">)</span>
+  | APlus <span style="color: #4f97d7;">(</span><span style="color: #7590db;">a1 a2</span> : aexp<span style="color: #4f97d7;">)</span>
+  | AMinus <span style="color: #4f97d7;">(</span><span style="color: #7590db;">a1 a2</span> : aexp<span style="color: #4f97d7;">)</span>
+  | AMult <span style="color: #4f97d7;">(</span><span style="color: #7590db;">a1 a2</span> : aexp<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org0629a65">
+<h2 id="org0629a65">Deep Embedding</h2>
+<ul>
+<li>Write code directly in this language (using Coq notations)</li>
+<li>Produce it as part of proof-producing synthesis (fiat-crypto)</li>
+<li>Import it from regular source code (clightgen for VST, CFML)</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org2bbab60">
+<h2 id="org2bbab60">Shallow Embedding</h2>
+<ul>
+<li>Use a monad to model side-effects
+<ul>
+<li>non-termination,</li>
+<li>pointers</li>
+<li>&#x2026;</li>
+
+</ul></li>
+<li>Inherit the rest from Coq</li>
+<li>Use notations to make it look pretty</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Notation</span> <span style="color: #2d9574;">"x '&lt;--' c1 ';' c2"</span> :=
+  <span style="color: #4f97d7;">(</span>bnd c1 <span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">fun</span> <span style="color: #7590db;">x</span> =&gt; c2<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> .
+<span style="color: #4f97d7; font-weight: bold;">Notation</span> <span style="color: #2d9574;">"c1 ';;' c2"</span> := <span style="color: #4f97d7;">(</span>bnd c1 <span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">fun</span> <span style="color: #7590db;">_</span> =&gt; c2<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>.
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgf17161d">
+<h2 id="orgf17161d">Pros of Deep embedding</h2>
+<ul>
+<li>A great deal of control, which is good for performance.</li>
+<li>Ability to reason on relations between programs needed for
+proving the correctness of program transformations and optimizing compilers.</li>
+<li>Well-suited to end-to-end verification: at first, one can
+pretty-print the imperative language and use any compiler, but eventually
+one shift to a verified compiler and push the assumptions down the
+software stack.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org14820d0">
+<h2 id="org14820d0">Cons of Deep embedding</h2>
+<p>
+Requires a model of the syntax and semantics of the language at a fairly low-level, including
+</p>
+<ul>
+<li>modeled function calls,</li>
+<li>variable bindings,</li>
+<li>local stacks,</li>
+<li>side effects,</li>
+<li>concurrency.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org96a71f6">
+<h2 id="org96a71f6">Pros of Shallow embedding</h2>
+<p>
+Great for prototyping because one can reuse most of Coq's infrastructure
+</p>
+<ul>
+<li>parsing engine</li>
+<li>name binding,</li>
+<li>type-checking,</li>
+<li>computations.</li>
+
+</ul>
+
+<p>
+Allows quick extension or modification of the embedded language.  
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org9a2345f">
+<h2 id="org9a2345f">Cons of Shallow embedding</h2>
+<ul>
+<li>less control</li>
+<li>usually there is a need to extend Coq with axioms</li>
+<li>the expressivity of the logical calculus or a type system is limited</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgad90707">
+<h2 id="orgad90707">What about the logic itself?</h2>
+<p>
+There are several different choices of how to formalize a Hoare logic in a proof assistant.
+One can choose a shallow or deep embedding for formalizing
+</p>
+<ul>
+<li>the assertion language,</li>
+<li>the logic for assertion derivation,</li>
+<li>the Hoare logic.</li>
+
+</ul>
+
+<p>
+With shallow embedding many practical proof rules are not derivable.
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org1e8786c">
+<h2 id="org1e8786c">The original Ynot</h2>
+<ul>
+<li>Based on Hoare Type Theory</li>
+<li>An axiomatic extension to Coq, that supports writing, reasoning about, and extracting higher-order, dependently-typed programs with side-effects.</li>
+<li>Uses shallow embedding: specifications in HTT are types of monadically-typed expressions.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org4f682bd">
+<h2 id="org4f682bd">Hoare Type Theory</h2>
+<ul>
+<li>Incorporates Hoare-style specifications into types</li>
+<li>Makes it possible to statically track and enforce correct use of side effects</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org387f5d8">
+<h2 id="org387f5d8">Hoare Type Theory</h2>
+<p>
+Starts with the type theory of Coq, which already has good support for
+</p>
+<ul>
+<li>functional programming, inductive definitions, specifications, proofs, tactics</li>
+<li>extends it with a new type <code>ST p A q</code>, indexed with a pre- and a post- conditions (<code>p</code>, <code>q</code>) in addition to type <code>A</code></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org1a2398f">
+<h2 id="org1a2398f">Hoare Type Theory</h2>
+<ul>
+<li><code>ST</code> classifies delayed, possibly effectful computations,</li>
+<li>Like the <code>IO</code>-monad classifies effectful computations in Haskell</li>
+<li>When a computation of type <code>ST p A q</code> is run in a heap satisfying <code>p</code>, and it
+terminates, it will produce a value of type <code>A</code> and result in a new heap such
+that the predicate <code>q</code> holds.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgcc161c1">
+<h2 id="orgcc161c1">Hoare Type Theory</h2>
+<ul>
+<li>Computations can allocate, read, write, and deallocate locations, throw and
+catch exceptions, and perform general recursion.</li>
+<li>HTT makes it possible to write ML/Haskell-style programs and formally reason about them.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgb03810f">
+<h2 id="orgb03810f">The Ynot compiler</h2>
+<ul>
+<li>produces object code compatible with GHC-compiled Haskell modules</li>
+<li>Haskell's laziness is useful since many Ynot terms have computationally irrelevant sub-terms (aux. variables)</li>
+<li>works in 3 stages</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org4ecc93b">
+<h2 id="org4ecc93b">The Ynot compiler</h2>
+<p>
+Stages:
+</p>
+<ul>
+<li>eliminate functors and modules and normalize all of the CiC terms</li>
+<li>transform the CiC terms into an intermediate language, eliminating proof
+terms, inductives, and pattern matching</li>
+<li>transform the result into GHC Core language and compile using the GHC code
+generator</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgc55ceed">
+<h2 id="orgc55ceed">CFML</h2>
+<ul>
+<li>CFML can be used to verify <span class="underline">effectful</span> OCaml programs using Coq</li>
+<li>Based on Characteristic Formulae</li>
+<li>CFML consists of
+<ul>
+<li>a generator that parses OCaml code and produces characteristic formulae
+expressed as Coq axioms</li>
+<li>a Coq library that provides tactics for manipulating characteristic formulae
+interactively</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org78bfb09">
+<h2 id="org78bfb09">Characteristic Formulae</h2>
+<ul>
+<li>A characteristic formula is a higher-order logic formula that fully
+characterizes the semantics of a program</li>
+<li>And thus and may be used to prove properties of that program</li>
+<li>Characteristic formulae involve specifications expressed in the style of
+Separation Logic</li>
+<li>Closely related to total correctness Hoare triples</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org1548df1">
+<h2 id="org1548df1">Characteristic Formulae</h2>
+<ul>
+<li>CF can be viewed as an abstract layer built on top of deep embedding</li>
+<li>CF hide the technical details associated with the explicit representation of
+syntax while retaining the high expressiveness of that approach</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgd7a90f0">
+<h2 id="orgd7a90f0">Characteristic Formulae</h2>
+<ul>
+<li>CF avoid the explicit representation of syntax associated with many
+technical difficulties (e.g. representation of binders)</li>
+<li>Specifications can be greatly simplified because program values such as tuples
+and functional lists become directly represented with their logical
+counterpart</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orge23f357">
+<h2 id="orge23f357">Char. Formulae vs Hoare triples</h2>
+<ul>
+<li>A Hoare triple <code>{P} C {Q}</code> is a 3-place relation where <code>C</code> represents the
+syntax of the program</li>
+<li>But <code>[C] P Q</code> is a logical proposition expressed with the standard
+higher-order connectives: <code>/\, \/, forall, exists</code>, etc.</li>
+<li>Hence CF can be proved without involving external derivation rules</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org64af3d8">
+<h2 id="org64af3d8">CFML</h2>
+<ul>
+<li>To generates characteristic formulae CFML uses neither knowledge of the
+specification nor of the invariants of the source code</li>
+<li>The specification of each top-level definition is instead provided by the
+user, in the form of the statement of a Coq theorem</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgf463e31">
+<h2 id="orgf463e31">CFML vs Ynot/HTT</h2>
+<ul>
+<li>Ynot/HTT: program verification is done at the same time as type-checking the
+source code.</li>
+<li>CF allow verifying programs after they have been written, without
+requiring the source code to be modified in any way.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org2d662d2">
+<h2 id="org2d662d2">Side effects and Coq extraction</h2>
+<ul>
+<li>To get side effects in extracted code one can write an interpreter in the
+target language that runs the verified part, using the power of the target
+language to interact with the outside world via the console, filesystem,
+network, etc.</li>
+<li>A big disadvantage of extraction is performance. The source code is several
+steps away from the extracted code and interpreter. This distance makes it
+hard to debug performance problems and reduces control over what the
+executable code does.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org847b848">
+<h2 id="org847b848">Monadic DSL for Mutable Arrays</h2>
+<ul>
+<li>Suppose we only care about array-based algorithms. This already covers a wide
+area of algorithms, for example
+<ul>
+<li>the union–find data structure,</li>
+<li>quicksort</li>
+
+</ul></li>
+<li>We can use a lightweight approach to formalizing imperative array-based algorithms</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org67f83fe">
+<h2 id="org67f83fe">Monadic DSL for Mutable Arrays</h2>
+<ul>
+<li>This approach does not deal with reference cells and local states</li>
+<li>Uses state monad specialized for mutable array programming</li>
+<li>Two interpretations: for reasoning and program extraction</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org81e825c">
+<h2 id="org81e825c">Monadic DSL for Mutable Arrays</h2>
+<ul>
+<li>Reduces reasoning on effectful programs to that of purely functional</li>
+<li>Provides encapsulation function like <code>runST</code> of state threads</li>
+<li>Convertts effectful functions written in the array state monad to referential
+transparent functions and enables encapsulation of proofs.</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org66ead28">
+<h2 id="org66ead28">Representing Mutable Arrays in Coq</h2>
+<ul>
+<li>State monad could be useful (<code>S -&gt; S * A</code>), but poses some problems we'd like to avoid</li>
+<li>Array state monad to the rescue
+<ul>
+<li>handle multi-dimensional and multiple mutable arrays</li>
+<li>never needs copy operations on arrays</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orga06e69d">
+<h2 id="orga06e69d">Representing Mutable Arrays in Coq</h2>
+<ul>
+<li>Finite functions <code>{ffun I1 * · · · * In -&gt; A}</code></li>
+<li>Correspond to arrays of <code>A</code> indexed by <code>I1</code>,&#x2026;, <code>In</code></li>
+<li>Monad transformers could handle multiple arrays</li>
+<li>But voilate the copying restriction: composition of state monad transformer
+and the non-determinism monad yields type <code>S -&gt; list (S * A)</code></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgaa59724">
+<h2 id="orgaa59724">Monadic DSL for Mutable Arrays</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">AState <span style="color: #4f97d7;">[</span>:: <span style="color: #bc6ec5;">(</span>I1, T1<span style="color: #bc6ec5;">)</span>; ...; <span style="color: #bc6ec5;">(</span>In, Tn<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">]</span> A 
+</pre>
+</div>
+<p>
+Array state monad actions with <code>I1</code>, &#x2026;, <code>In</code> indexed mutable arrays of <code>T1</code>,
+&#x2026;, <code>Tn</code> respectively and the return type <code>A</code>.
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orgf051b1e">
+<h2 id="orgf051b1e">Monadic DSL for Mutable Arrays</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Implicit Types</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">I J K</span> : finType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">sig</span> : Sign<span style="color: #4f97d7;">)</span>.
+
+<span style="color: #4f97d7; font-weight: bold;">Inductive</span> <span style="color: #bc6ec5; font-weight: bold;">AState</span> : Sign &#8594; <span style="color: #ce537a; font-weight: bold;">Type</span> &#8594; <span style="color: #ce537a; font-weight: bold;">Type</span> :=
+| astate_ret_ : <span style="color: #ce537a; font-weight: bold;">&#8704;</span> <span style="color: #4f97d7;">{</span>sig<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>A<span style="color: #4f97d7;">}</span>,
+    A -&gt; AState sig A
+| astate_bind_ : <span style="color: #ce537a; font-weight: bold;">&#8704;</span> <span style="color: #4f97d7;">{</span>sig<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>A B<span style="color: #4f97d7;">}</span>,
+    AState sig A -&gt;
+    <span style="color: #4f97d7;">(</span>A -&gt; AState sig B<span style="color: #4f97d7;">)</span> -&gt;
+    AState sig B
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org14b51f9">
+<h2 id="org14b51f9">Monadic DSL for Mutable Arrays</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">| astate_lift_ : <span style="color: #ce537a; font-weight: bold;">&#8704;</span><span style="color: #4f97d7;">{</span>I<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>T<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>sig<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>A<span style="color: #4f97d7;">}</span>,
+   AState sig A -&gt;
+   AState <span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span>I, T<span style="color: #bc6ec5;">)</span> :: sig<span style="color: #4f97d7;">)</span> A
+</pre>
+</div>
+<p>
+The lift operator lifts array state monad actions of a signature <code>Σ</code> to that
+with a signature <code>(I,T)::Σ</code>, and lifted actions does not affect the first array.
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orgfac1591">
+<h2 id="orgfac1591">Monadic DSL for Mutable Arrays</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq">| astate_GET_ : <span style="color: #ce537a; font-weight: bold;">&#8704;</span> <span style="color: #4f97d7;">{</span>I<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>T<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>sig<span style="color: #4f97d7;">}</span>,
+   'I_#|I| -&gt;
+   AState <span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span>I, T<span style="color: #bc6ec5;">)</span> :: sig<span style="color: #4f97d7;">)</span> T
+| astate_SET_ : <span style="color: #ce537a; font-weight: bold;">&#8704;</span> <span style="color: #4f97d7;">{</span>I<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>T<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span>sig<span style="color: #4f97d7;">}</span>,
+   'I_#|I| -&gt;
+   T -&gt;
+   AState <span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span>I, T<span style="color: #bc6ec5;">)</span> :: sig<span style="color: #4f97d7;">)</span> unit.
+</pre>
+</div>
+<p>
+Get and set operators can only access the first array.
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org4b8f456">
+<h2 id="org4b8f456">Monadic DSL for Mutable Arrays</h2>
+<p>
+Example program
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Definition</span> <span style="color: #bc6ec5; font-weight: bold;">swap</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">I</span> : finType<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>A<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">{</span><span style="color: #7590db;">sig</span> : Sign<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">i j</span> : I<span style="color: #4f97d7;">)</span> :
+  AState <span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span>I, A<span style="color: #bc6ec5;">)</span> :: sig<span style="color: #4f97d7;">)</span> unit :=
+    x &#8592; astate_get i;
+    y &#8592; astate_get j;
+    astate_set i y;;
+    astate_set j x.
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org9af8e11">
+<h2 id="org9af8e11">Monadic DSL for Mutable Arrays</h2>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Lemma</span> <span style="color: #bc6ec5; font-weight: bold;">run_swap</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">I</span> : finType<span style="color: #4f97d7;">)</span> A <span style="color: #4f97d7;">(</span><span style="color: #7590db;">sig</span> : Sign<span style="color: #4f97d7;">)</span>
+               <span style="color: #4f97d7;">(</span><span style="color: #7590db;">i j</span> : I<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span><span style="color: #7590db;">f</span> : <span style="color: #bc6ec5;">{</span>ffun I &#8594; A<span style="color: #bc6ec5;">}</span><span style="color: #4f97d7;">)</span>
+               <span style="color: #4f97d7;">(</span><span style="color: #7590db;">fs</span> : states_AState sig<span style="color: #4f97d7;">)</span> :
+  run_AState <span style="color: #4f97d7;">(</span>swap i j<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">(</span>fs, f<span style="color: #4f97d7;">)</span>
+  =
+  <span style="color: #4f97d7;">(</span>fs, <span style="color: #bc6ec5;">[</span>ffun k &#8658; f <span style="color: #2d9574;">(</span>tperm i j k<span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">]</span>, tt<span style="color: #4f97d7;">)</span>.
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org2d1bb74">
+<h2 id="org2d1bb74">Monadic DSL for Mutable Arrays</h2>
+<ul>
+<li>It's possible to hack on the extraction mechanism to extract an efficient version into
+OCaml, which supports mutable arrays natively.</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-coq"><span style="color: #4f97d7; font-weight: bold;">Extract</span> <span style="color: #4f97d7; font-weight: bold;">Inductive</span> <span style="color: #bc6ec5; font-weight: bold;">AState</span> &#8658; <span style="color: #2d9574;">"runt_AState_"</span> <span style="color: #4f97d7;">[</span>
+<span style="color: #2d9574;">"(fun a s -&gt; a)"</span>
+<span style="color: #2d9574;">"(fun (f,g) s-&gt; let r = f s in g r s)"</span>
+<span style="color: #2d9574;">"(fun f s -&gt; let(ss,_) = Obj.magic s in f ss)"</span>
+<span style="color: #2d9574;">"(fun i s -&gt; let (_, s1) = Obj.magic s in</span>
+<span style="color: #2d9574;">             s1.(i))"</span>
+<span style="color: #2d9574;">"(fun (i, x) s -&gt; let (_, s1) = Obj.magic s in</span>
+<span style="color: #2d9574;">                  s1.(i) &lt;- x)"</span><span style="color: #4f97d7;">]</span>.
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org31b7b57">
+<h2 id="org31b7b57">References</h2>
+<ul>
+<li>Hoare Type Theory, Polymorphism and Separation - A. Nanevski et al.(2006)</li>
+<li>Ynot: Dependent Types for Imperative Programs - A. Nanevski et al.(2008)</li>
+<li>Programs and Proofs: Mechanizing Mathematics with Dependent Types (chapter 8) - I. Sergey</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org811b5ee">
+<h2 id="org811b5ee">References</h2>
+<ul>
+<li>Characteristic Formulae for the Verification of Imperative Programs - A. Chargueraud(2013)</li>
+<li>Program Extraction for Mutable Arrays - K. Sakaguchi(2018)</li>
+<li>Deep Embedded Hoare Logic for Building Machine-Checkable Foundational Program Correctness Proofs - Q. Cao(2019)</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'none', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+</script>
+</body>
+</html>

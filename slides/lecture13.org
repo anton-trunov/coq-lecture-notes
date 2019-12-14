@@ -1,0 +1,302 @@
+# How to make it work with Spacemacs
+# 1. Add the following to .spacemacs file
+# (org :variables
+#      org-enable-github-support t
+#      org-enable-reveal-js-support t)
+# 2. Use M-x org-reveal-export-to-html-and-browse
+
+#+TITLE: Verification of Imperative Algorithms
+#+DATE: 13.12.2019
+#+AUTHOR: Anton Trunov (Zilliqa Research)
+#+EMAIL: https://github.com/anton-trunov
+#+OPTIONS: num:nil toc:nil timestamp:nil
+#+REVEAL_TRANS: none
+# none | fade | slide | convex | concave | zoom
+#+REVEAL_THEME: beige
+# default | beige | sky | night | serif | simple | moon
+# /League/Sky/Beige/Simple/Serif/Blood/Night/Moon/Solarized
+#+REVEAL_EXTRA_CSS: ./modifications.css
+
+* Problem
+- We want to prove properties of imperative algorithms, e.g.
+  + Array-based quicksort
+  + Union-find
+  + Linked lists
+  + ...
+- But Coq s a purely functional language
+- We need
+  + to model imperative constructs and
+  + a reasoning framework
+* Hoare-style reasoning to the rescue
+- Many interactive program verification tools are Hoare-style logic based.
+- ={P} C {Q}=
+- Partial correctness vs Total correctness
+* Partial correctness
+- If a precondition =P= holds
+- _and_ program =C= terminates
+- then postcondition =Q= holds
+* Total correctness
+- If a precondition =P= holds
+- then program =C= terminates
+- _and_ postcondition =Q= holds
+* How do we represent programs in Coq?
+- Deep embedding
+- Shallow embedding
+- Characteristic formulae
+* Deep Embedding
+Deeply embedded IMP language
+
+#+BEGIN_SRC coq
+Inductive com : Type :=
+  | CSkip : com
+  | CAss (v : name) (a : aexp)
+  | CSeq (c1 c2 : com)
+  | CIf (cond : bexp) (cthen celse : com)
+  | CWhile (cond : bexp) (body : com).
+#+END_SRC
+  
+#+BEGIN_SRC coq
+Inductive aexp : Type :=
+  | ANum (n : nat)
+  | APlus (a1 a2 : aexp)
+  | AMinus (a1 a2 : aexp)
+  | AMult (a1 a2 : aexp)
+#+END_SRC
+* Deep Embedding
+- Write code directly in this language (using Coq notations)
+- Produce it as part of proof-producing synthesis (fiat-crypto)
+- Import it from regular source code (clightgen for VST, CFML)
+* Shallow Embedding
+- Use a monad to model side-effects
+  + non-termination,
+  + pointers
+  + ...
+- Inherit the rest from Coq
+- Use notations to make it look pretty
+#+BEGIN_SRC coq
+Notation "x '<--' c1 ';' c2" :=
+  (bnd c1 (fun x => c2)) .
+Notation "c1 ';;' c2" := (bnd c1 (fun _ => c2)).
+#+END_SRC
+* Pros of Deep embedding
+- A great deal of control, which is good for performance.
+- Ability to reason on relations between programs needed for
+  proving the correctness of program transformations and optimizing compilers.
+- Well-suited to end-to-end verification: at first, one can
+  pretty-print the imperative language and use any compiler, but eventually
+  one shift to a verified compiler and push the assumptions down the
+  software stack.
+* Cons of Deep embedding
+Requires a model of the syntax and semantics of the language at a fairly low-level, including
+- modeled function calls,
+- variable bindings,
+- local stacks,
+- side effects,
+- concurrency.
+* Pros of Shallow embedding
+Great for prototyping because one can reuse most of Coq's infrastructure
++ parsing engine
++ name binding,
++ type-checking,
++ computations.
+ 
+Allows quick extension or modification of the embedded language.  
+* Cons of Shallow embedding
+- less control
+- usually there is a need to extend Coq with axioms
+- the expressivity of the logical calculus or a type system is limited
+* What about the logic itself?
+There are several different choices of how to formalize a Hoare logic in a proof assistant.
+One can choose a shallow or deep embedding for formalizing
+- the assertion language,
+- the logic for assertion derivation,
+- the Hoare logic.
+ 
+With shallow embedding many practical proof rules are not derivable.
+* The original Ynot
+- Based on Hoare Type Theory
+- An axiomatic extension to Coq, that supports writing, reasoning about, and extracting higher-order, dependently-typed programs with side-effects.
+- Uses shallow embedding: specifications in HTT are types of monadically-typed expressions.
+* Hoare Type Theory
+- Incorporates Hoare-style specifications into types
+- Makes it possible to statically track and enforce correct use of side effects
+* Hoare Type Theory
+Starts with the type theory of Coq, which already has good support for
+- functional programming, inductive definitions, specifications, proofs, tactics
+- extends it with a new type =ST p A q=, indexed with a pre- and a post- conditions (=p=, =q=) in addition to type =A=
+* Hoare Type Theory
+- =ST= classifies delayed, possibly effectful computations,
+- Like the =IO=-monad classifies effectful computations in Haskell
+- When a computation of type =ST p A q= is run in a heap satisfying =p=, and it
+  terminates, it will produce a value of type =A= and result in a new heap such
+  that the predicate =q= holds.
+* Hoare Type Theory
+- Computations can allocate, read, write, and deallocate locations, throw and
+  catch exceptions, and perform general recursion.
+- HTT makes it possible to write ML/Haskell-style programs and formally reason about them.
+* The Ynot compiler
+- produces object code compatible with GHC-compiled Haskell modules
+- Haskell's laziness is useful since many Ynot terms have computationally irrelevant sub-terms (aux. variables)
+- works in 3 stages
+* The Ynot compiler
+Stages:
+- eliminate functors and modules and normalize all of the CiC terms
+- transform the CiC terms into an intermediate language, eliminating proof
+  terms, inductives, and pattern matching
+- transform the result into GHC Core language and compile using the GHC code
+  generator
+* CFML
+- CFML can be used to verify _effectful_ OCaml programs using Coq
+- Based on Characteristic Formulae
+- CFML consists of
+  + a generator that parses OCaml code and produces characteristic formulae
+    expressed as Coq axioms
+  + a Coq library that provides tactics for manipulating characteristic formulae
+    interactively
+* Characteristic Formulae
+- A characteristic formula is a higher-order logic formula that fully
+  characterizes the semantics of a program
+- And thus and may be used to prove properties of that program
+- Characteristic formulae involve specifications expressed in the style of
+  Separation Logic
+- Closely related to total correctness Hoare triples
+* Characteristic Formulae
+- CF can be viewed as an abstract layer built on top of deep embedding
+- CF hide the technical details associated with the explicit representation of
+  syntax while retaining the high expressiveness of that approach
+* Characteristic Formulae
+- CF avoid the explicit representation of syntax associated with many
+  technical difficulties (e.g. representation of binders)
+- Specifications can be greatly simplified because program values such as tuples
+  and functional lists become directly represented with their logical
+  counterpart
+* Char. Formulae vs Hoare triples
+- A Hoare triple ={P} C {Q}= is a 3-place relation where =C= represents the
+  syntax of the program
+- But =[C] P Q= is a logical proposition expressed with the standard
+  higher-order connectives: =/\, \/, forall, exists=, etc.
+- Hence CF can be proved without involving external derivation rules
+* CFML
+- To generates characteristic formulae CFML uses neither knowledge of the
+  specification nor of the invariants of the source code
+- The specification of each top-level definition is instead provided by the
+  user, in the form of the statement of a Coq theorem
+* CFML vs Ynot/HTT
+- Ynot/HTT: program verification is done at the same time as type-checking the
+  source code.
+- CF allow verifying programs after they have been written, without
+  requiring the source code to be modified in any way.
+* Side effects and Coq extraction
+- To get side effects in extracted code one can write an interpreter in the
+  target language that runs the verified part, using the power of the target
+  language to interact with the outside world via the console, filesystem,
+  network, etc.
+- A big disadvantage of extraction is performance. The source code is several
+  steps away from the extracted code and interpreter. This distance makes it
+  hard to debug performance problems and reduces control over what the
+  executable code does.
+* Monadic DSL for Mutable Arrays
+- Suppose we only care about array-based algorithms. This already covers a wide
+  area of algorithms, for example
+  + the union–find data structure,
+  + quicksort
+- We can use a lightweight approach to formalizing imperative array-based algorithms
+* Monadic DSL for Mutable Arrays
+- This approach does not deal with reference cells and local states
+- Uses state monad specialized for mutable array programming
+- Two interpretations: for reasoning and program extraction
+* Monadic DSL for Mutable Arrays
+- Reduces reasoning on effectful programs to that of purely functional 
+- Provides encapsulation function like =runST= of state threads
+- Convertts effectful functions written in the array state monad to referential
+  transparent functions and enables encapsulation of proofs.
+* Representing Mutable Arrays in Coq
+- State monad could be useful (=S -> S * A=), but poses some problems we'd like to avoid
+- Array state monad to the rescue
+  + handle multi-dimensional and multiple mutable arrays
+  + never needs copy operations on arrays
+* Representing Mutable Arrays in Coq
+- Finite functions ={ffun I1 * · · · * In -> A}=
+- Correspond to arrays of =A= indexed by =I1=,..., =In=
+- Monad transformers could handle multiple arrays
+- But voilate the copying restriction: composition of state monad transformer
+  and the non-determinism monad yields type =S -> list (S * A)=
+* Monadic DSL for Mutable Arrays
+#+BEGIN_SRC coq
+AState [:: (I1, T1); ...; (In, Tn)] A 
+#+END_SRC
+Array state monad actions with =I1=, ..., =In= indexed mutable arrays of =T1=,
+..., =Tn= respectively and the return type =A=.
+* Monadic DSL for Mutable Arrays
+#+BEGIN_SRC coq
+  Implicit Types (I J K : finType) (sig : Sign).
+
+  Inductive AState : Sign → Type → Type :=
+  | astate_ret_ : ∀ {sig} {A},
+      A -> AState sig A
+  | astate_bind_ : ∀ {sig} {A B},
+      AState sig A ->
+      (A -> AState sig B) ->
+      AState sig B
+#+END_SRC
+* Monadic DSL for Mutable Arrays
+#+BEGIN_SRC coq
+  | astate_lift_ : ∀{I} {T} {sig} {A},
+     AState sig A ->
+     AState ((I, T) :: sig) A
+#+END_SRC
+The lift operator lifts array state monad actions of a signature =Σ= to that
+with a signature =(I,T)::Σ=, and lifted actions does not affect the first array.
+* Monadic DSL for Mutable Arrays
+#+BEGIN_SRC coq
+  | astate_GET_ : ∀ {I} {T} {sig},
+     'I_#|I| ->
+     AState ((I, T) :: sig) T
+  | astate_SET_ : ∀ {I} {T} {sig},
+     'I_#|I| ->
+     T ->
+     AState ((I, T) :: sig) unit.
+#+END_SRC
+Get and set operators can only access the first array.
+* Monadic DSL for Mutable Arrays
+Example program
+#+BEGIN_SRC coq
+Definition swap (I : finType) {A} {sig : Sign} (i j : I) :
+  AState ((I, A) :: sig) unit :=
+    x ← astate_get i;
+    y ← astate_get j;
+    astate_set i y;;
+    astate_set j x.
+#+END_SRC
+* Monadic DSL for Mutable Arrays
+#+BEGIN_SRC coq
+Lemma run_swap (I : finType) A (sig : Sign)
+               (i j : I) (f : {ffun I → A})
+               (fs : states_AState sig) :
+  run_AState (swap i j) (fs, f)
+  =
+  (fs, [ffun k ⇒ f (tperm i j k)], tt).
+#+END_SRC
+* Monadic DSL for Mutable Arrays
+- It's possible to hack on the extraction mechanism to extract an efficient version into
+  OCaml, which supports mutable arrays natively.
+#+BEGIN_SRC coq
+Extract Inductive AState ⇒ "runt_AState_" [
+"(fun a s -> a)"
+"(fun (f,g) s-> let r = f s in g r s)"
+"(fun f s -> let(ss,_) = Obj.magic s in f ss)"
+"(fun i s -> let (_, s1) = Obj.magic s in
+             s1.(i))"
+"(fun (i, x) s -> let (_, s1) = Obj.magic s in
+                  s1.(i) <- x)"].
+#+END_SRC
+* References
+- Hoare Type Theory, Polymorphism and Separation - A. Nanevski et al.(2006)
+- Ynot: Dependent Types for Imperative Programs - A. Nanevski et al.(2008)
+- Programs and Proofs: Mechanizing Mathematics with Dependent Types (chapter 8) - I. Sergey
+* References
+- Characteristic Formulae for the Verification of Imperative Programs - A. Chargueraud(2013)
+- Program Extraction for Mutable Arrays - K. Sakaguchi(2018)
+- Deep Embedded Hoare Logic for Building Machine-Checkable Foundational Program Correctness Proofs - Q. Cao(2019)
+
+
