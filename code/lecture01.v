@@ -70,7 +70,7 @@ Definition inc := S.
     only eta-expanded *)
 
 (**
-eta-expansion is baked into Coq' notion of definitional equality, i.e
+eta-expansion is baked into Coq's notion of definitional equality, i.e
 (fun x => f x) and f are definitionally equal
 but
 extensionally equal functions are not necessarily equal, i.e.
@@ -150,7 +150,7 @@ Eval hnf in (apply2 (apply2 square) two).
 
 End My.
 
-(** After closing a module, the identifiers defined in it,
+(** After closing a module, the identifiers defined in it
     get prefixed with the module's name *)
 Check My.apply2.
 
@@ -230,7 +230,7 @@ Fail Fixpoint loop (n : nat) : False :=
 (* loop : n -> False *)
 
 (** If this was allowed, we could construct a value of an empty type
-    in the empy context like so: *)
+    in the empty context like so: *)
 Fail Check (loop O : False).
 
 (** And this would preclude Coq from being a logic *)

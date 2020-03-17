@@ -38,7 +38,7 @@ Qed.
 
 (** * Fibonacci numbers and custom induction principles *)
 
-(** Let's define a recursive fibonacci function *)
+(** Let's define a recursive Fibonacci function *)
 
 (** Coq cannot figure out that we are using
     structural recursion here. It needs a hint. *)
@@ -177,7 +177,7 @@ Lemma fib_iter_correct'' n :
 Proof.
 Fail apply: fib_iter_spec'.
 by apply: (fib_iter_spec' n 0).
-(* Alternative (longer, but more explicit)solution: *)
+(* Alternative (longer, but more explicit) solution: *)
 Restart.
 suffices: (fib_iter n (fib 0) (fib 1) = fib n) by [].
 by apply: fib_iter_spec'.

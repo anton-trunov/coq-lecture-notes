@@ -8,7 +8,7 @@ Unset Printing Implicit Defensive.
 
 Section BooleanReflection.
 
-(** * Case analisys on type families:
+(** * Case analysis on type families:
       [case Eq: var / TF]
  *)
 
@@ -287,9 +287,3 @@ Proof. by apply/eqP. Qed.
 End BasicLemmas.
 
 Hint Resolve eq_refl.
-
-
-
-
-
-

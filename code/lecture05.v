@@ -129,7 +129,7 @@ The optional natural number is the number of implicit arguments
 to be considered for the declared hint view lemma.
 
 The ssrbool.v module already declares a numbers of view hints,
-so adding new ones should be justtified. For instance, one might need to do it
+so adding new ones should be justified. For instance, one might need to do it
 if one defines a new logical connective.
  *)
 

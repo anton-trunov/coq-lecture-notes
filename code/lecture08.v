@@ -48,7 +48,6 @@ Definition pred_dep (x : {n | 0 < n}) : nat :=
       fun _ => n'
   end prf_n_gt_0.
 
-
 (** ** Some issues *)
 
 (** Proof irrelevance *)
@@ -96,7 +95,7 @@ congr exist.
 exact: eq_irrelevance.
 Qed.
 
-(** We cannot define [proj1_sig] as a coercion *)
+(** We cannot define [sval] (aka [proj1_sig]) as a coercion *)
 
 (**
 This is because we cannot specify the target
