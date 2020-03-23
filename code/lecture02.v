@@ -6,7 +6,7 @@ Module MyNamespace.
 
 (** Euclidean division: returns quotient and reminder  *)
 
-(** Type constrtuctors, Product type *)
+(** Type constructors, Product type *)
 
 Section ProductType.
 
@@ -16,7 +16,7 @@ Inductive prod (A B : Type) : Type :=
 About pair.
 
 (** Explicit binding of type constructor's parameters for
-    data constrtuctors
+    data constructors
   *)
 Check pair 42 true : prod nat bool.
 
@@ -54,7 +54,7 @@ Check ((nat * bool) * nat)%type.
 
 Check (nat * (bool * nat))%type.
 
-(** Weak notatiton *)
+(** Weak notation *)
 Notation "( p ; q )" := (pair p q).
 
 (** Triples, quadruples, ... ? *)
@@ -73,7 +73,7 @@ Set Printing Notations.
 Definition fst {A B : Type} : A * B -> A :=
   (* fun p => match p with | pair a b => a end. *)
   (* fun p => let (a, b) := p in a. *)
-  fun '(a, _) => a.
+  fun '(a, _) => a. 
 
 Notation "p .1" := (fst p).
 
@@ -209,7 +209,7 @@ Fail Definition DNE (A : Prop) :
 :=
   fun nna => __.  (* can't call [nna] *)
 
-(* Since the Law of Exlcluded Middle
+(* Since the Law of Excluded Middle
    is equivalent to DNE it's not provable
    either
  *)

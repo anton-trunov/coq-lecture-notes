@@ -346,8 +346,8 @@ End BraunTreeRemove.
 
 
 (** Let's try a perhaps quicker way of checking
-    If it makes sense to prove the properties of
-    and algorithm. Proving might require a
+    if it makes sense to prove the properties of
+    an algorithm. Proving might require a
     non-trivial amount of work, so we better have
     a way to filter out non-theorems or useless theorems
  *)
@@ -357,7 +357,7 @@ Property-based randomized testing to the rescue!
 
 Key ideas:
 - Write specifications as _computable_ predicates
-- Generate lots of random inputes to test your functions
+- Generate lots of random inputs to test your functions
 - "Shrink" counterexamples
 
 One could say that property-based randomized testing sits
@@ -432,7 +432,7 @@ QuickChecking (fun bt => is_brtree bt ==> is_brtree (br_remove_min 100 bt).2)
 
 
 (** Using QuickChick can be a nice way of figuring out
-    the precodintions to the lemmas of interest,
+    the preconditions to the lemmas of interest,
     i.e. testing helps proving!
 
     Moreover, since our testing code
@@ -444,7 +444,7 @@ QuickChecking (fun bt => is_brtree bt ==> is_brtree (br_remove_min 100 bt).2)
 (** So we gain confidence in the statement and
     can continue proving it -- it's a nice exercise,
     but it's pointless because it's easy to see that
-    [br_remove_min] does not always return a minumum.
+    [br_remove_min] does not always return a minimum.
     (you have probably spotted that it does not rely on
      a less-or-equal relation like [br_insert] does).
     Let's demonstrate it using QuickChick.
@@ -472,7 +472,7 @@ BTnode (BTnode BTempty 1 BTempty) 0 BTempty
 
 (** * Some non-examples *)
 
-(** Let's try to create a test generator for out subtype *)
+(** Let's try to create a test generator for our subtype *)
 Module Sub.
 Section BraunTreeSubType.
 
@@ -621,7 +621,7 @@ Mutation Proving:
 Examples of operations
 - Reorder branches of if-expressions
 - Replace plus with minus
-- Replase a list with its tail
+- Replace a list with its tail
 
 
 A practical observation:

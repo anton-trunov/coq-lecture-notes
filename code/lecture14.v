@@ -37,7 +37,7 @@ Software Toolchain (VST).
 (**
 Real-world verifications with VST:
 - "Verified correctness and security of
-  OpenSSL HMAC" - Beringer, Petcher, KQ, Appel (2015)
+   OpenSSL HMAC" - Beringer, Petcher, KQ, Appel (2015)
 - "Verification of a cryptographic
    primitive: SHA-256" - Appel(2015)
 
@@ -117,7 +117,7 @@ Definition Vprog : varspecs.
   mk_varspecs prog. Defined.
 
 (** Functional spec of this program:
-    Notice that it is indepenedent of
+    Notice that it is independent of
     sumarray.v file
  *)
 Definition sum_Z : list Z -> Z :=
@@ -149,7 +149,7 @@ DECLARE _sumarray
  PRE [ _a OF (tptr tuint), _n OF tint ]
    PROP (
      (** [PROP] desribes propositions
-         indepenedent of state *)
+         independent of state *)
      readable_share sh;
      0 <= size <= Int.max_signed;
      Forall
@@ -350,8 +350,8 @@ What have we covered so far:
 - Curry-Howard correspondence
 - Patterns of proofs by induction
 - A bit of proof automation: lia (omega)
-- The building block of the Mathcomp library:
-  • boolean reflection
+- The building blocks of the Mathcomp library:
+  • Boolean reflection
   • Canonical Structures
   • Coercions, Notations
   • Phantom types

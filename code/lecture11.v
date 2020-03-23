@@ -96,7 +96,9 @@ Lemma is_brtree_node l x r :
    (bt_size l == (bt_size r).+1)).
 Proof.
 rewrite /is_brtree -/is_brtree; case/and3P=> ->->.
-by case/orP; case: ltngtP=> // ->; rewrite orbT.
+case/orP.
+ - case: ltngtP => //.
+by case: (ltngtP (bt_size l) (bt_size r).+1) => // ->; rewrite orbT.
 Qed.
 
 (** Exercise *)
@@ -321,7 +323,7 @@ QuickChecking (fun bt => is_brtree bt ==> is_brtree (br_remove_min 100 bt).2)
 (** So we gain confidence in the statement and
     can continue proving it -- it's a nice exercise,
     but it's pointless because it's easy to see that
-    [br_remove_min] does not always return a minumum.
+    [br_remove_min] does not always return a minimum.
     (you have probably spotted that it does not rely on
      a less-or-equal relation like [br_insert] does).
     Let's demonstrate it using QuickChick.
@@ -356,7 +358,7 @@ Inductive brtree :=
   BrTree (bt : btree T) of is_brtree bt.
 
 Coercion tree_of_brtree (brt : brtree) :=
-  let: BrTree bt _ := brt in bt.
+  let: @BrTree bt _ := brt in bt.
 
 Canonical brtree_subType :=
   [subType for tree_of_brtree].
@@ -417,7 +419,7 @@ Variable T : Type.
 Fixpoint brt_slow_size1
            {n} (brt : brtree T n)
   : nat :=
-  if brt is (BrTnode _ l _ _ r _) then
+  if brt is (@BrTnode _ _ l _ _ r _) then
     (brt_slow_size1 l +
      brt_slow_size1 r).+1
   else
@@ -428,13 +430,13 @@ Fixpoint brt_slow_size2
   : {s | s = n}.
 case: brt.
 - by exists 0.
-move=> m' l x n' r pf.
-exists (sval (brt_slow_size2 _ l) +
-        sval (brt_slow_size2 _ r)).+1.
-case: (brt_slow_size2 _ _).
-case: (brt_slow_size2 _ _).
-move=>/=.
-by move=> ? -> ? ->.
+- move=> m' l x n' r pf.
+  exists (sval (brt_slow_size2 _ l) +
+          sval (brt_slow_size2 _ r)).+1.
+  case: (brt_slow_size2 _ _).
+  case: (brt_slow_size2 _ _).
+  move=>/=.
+  by move=> ? -> ? ->.
 Defined.
 
 Print brt_slow_size2.
@@ -443,7 +445,7 @@ Print brt_slow_size2.
 Fail Program Fixpoint brt_slow_size3
            {n} (brt : brtree T n)
   : {s | s = n} :=
-  if brt is (BrTnode _ l _ _ r _) then
+  if brt is (@BrTnode _ _ l _ _ r _) then
       ((brt_slow_size3 l) +
        (brt_slow_size3 r)).+1
   else
@@ -468,7 +470,7 @@ Fail Fixpoint br_insert {n} (e : T)
       BrTempty
       (or_introl erefl).
 
-(** But we can know express more
+(** But we can now express more
     in types, compare this to
     bt_remove_min *)
 Fixpoint brt_remove_min {n}

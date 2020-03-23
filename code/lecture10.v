@@ -159,7 +159,7 @@ Intuitively we know that for any two lists we can
 compute if one is a permutation of the other if we
 have equality over the type of elements.
 
-Mathcomp introduces a computable of notion of
+Mathcomp introduces a computable notion of
 equivalence up to permutation: [perm_eq] defined
 as follows:
 *)
@@ -336,7 +336,7 @@ case: ifP.
 - move=> /=.
   move=>-> /= ->.
   by rewrite x1_le_e.
-  (** We are moving in circles here, let' steps back
+  (** We are moving in circles here, let's step back
       and generalize the problem. *)
 Abort.
 
