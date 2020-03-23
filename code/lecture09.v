@@ -36,7 +36,7 @@ Check sig : forall A : Type, (A -> Prop) -> Type.
     If Coq wants to stay compatible with classical
     logic it needs to prohibit information flow
     from [Prop] to [Type].
-    In other words, one can _only_ use proofs to
+    In other words, one can use proofs _only_ to
     build other proofs.
 *)
 
@@ -122,7 +122,7 @@ End TypeInType.
 (** * Large elimination *)
 
 (**
-Next, let's look at _large elimination
+Next, let's look at _large elimination_
 Large elimination is the ability to build values
 of type [Type] by eliminating an inductive value.
 
@@ -237,8 +237,8 @@ because proofs can be eliminated only to build proofs.
     - the guardedness check,
     - strict positivity rule, and
     - universe inconsistency check
-    It's not needed with the current development
-    version of Coq (8.11+alpha).
+    It's not needed with the latest
+    versions of Coq (8.10+).
     For Coq versions 8.7 - 8.9 it can be installed
     with opam package manager:
       opam install coq-typing-flags
@@ -298,7 +298,7 @@ Print Assumptions weak_normalization.
 
 (** * Intermezzo: [interleave] function *)
 
-(** ** Elegant, but non-structural recursive [interleave] function *)
+(** ** Elegant, but non-structurally recursive [interleave] function *)
 
 Unset Guard Checking.
 Fixpoint interleave_ns {T} (xs ys : seq T)
@@ -344,7 +344,7 @@ Qed.
 
 (** ** 1. Using the builtin [Function] plugin *)
 
-(** To activate [Function] plugin,
+(** Activate [Function] plugin,
     this makes available a new piece of vernacular:
     [Function] *)
 From Coq Require Import Recdef.
@@ -446,7 +446,7 @@ exists p : nat,
 *)
 
 (** Under the hood [interleave_f_terminate]
-    is (of course) a structural recursive function.
+    is (of course) a structurally recursive function.
     To understand what type we do recursion over,
     let's print the definition of the function and
     search for [fix] *)
