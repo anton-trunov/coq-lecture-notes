@@ -29,26 +29,30 @@ Definition interleave_fix {A} (xs ys : seq A) : seq A :=
 From Coq Require Import Eqdep.
 
 Section Cast.
-Variable (C : Type) (interp : C -> Type).
+Variable (T : Type) (interp : T -> Type).
 
 Definition cast A B (pf : A = B) (v : interp B) : interp A :=
   ecast _ _ (esym pf) v.
 
-(** You need to use [Streicher_K] axiom from [Eqdep] module *)
+(** Hint: you need to use [Streicher_K] axiom from [Eqdep] module *)
 Lemma eqc A (pf : A = A) (v : interp A) : cast pf v = v.
 Proof.
 Admitted.
 
 (** Heterogeneous equality via [cast] *)
 Definition jmeq A B (v : interp A) (w : interp B) :=
-  forall pf, v = cast pf w.
+  exists pf, v = cast pf w.
 
 Lemma jmrefl A (v : interp A) : jmeq v v.
 Proof.
 Admitted.
 
-Lemma jmsym A B (v : interp A) (w : interp B) :
-  jmeq v w -> jmeq w v.
+Lemma jm_sym A B (v : interp A) (w : interp B) : jmeq v w -> jmeq w v.
+Proof.
+Admitted.
+
+Lemma jm_trans A B C (u : interp A) (v : interp B) (w : interp C) :
+  jmeq u v -> jmeq v w -> jmeq u w.
 Proof.
 Admitted.
 
